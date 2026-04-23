@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 
 const AREAS = [
@@ -8,6 +9,9 @@ const AREAS = [
 ]
 
 export default function UserLogInForm() {
+
+    const navigate = useNavigate()
+
     const [step, setStep] = useState(1)
     const { register, handleSubmit, getValues, trigger, formState: { errors } } = useForm()
 
@@ -16,10 +20,39 @@ export default function UserLogInForm() {
         if (valid) setStep(2)
     }
 
-    const onSubmit = (data) => {
-        const { confirmPassword, ...cleanData } = data
-        console.log(cleanData)
-        // your API call here
+    const onSubmit = async (data) => {
+        const { confirmPassword, area, street, landmark, ...rest } = data
+
+        const cleanData = {
+            ...rest,
+            address: { area, street, landmark }  
+        }
+
+        // console.log(cleanData)
+
+        try {
+            const res = await fetch('http://localhost:5000/api/login/user', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(cleanData )
+            })
+
+            const data = await res.json()
+            console.log(data)
+
+            if (data.success) {
+                console.log(data.user)
+                navigate('/')
+            }
+            else {
+                alert(data.error || 'Unknown error')
+            }
+
+        }
+        catch (err) {
+            console.log('hi')
+            console.log(err.message)
+        }
     }
 
     const inp = "w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm outline-none focus:border-violet-400 transition bg-gray-100"

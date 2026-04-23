@@ -12,7 +12,7 @@ import Provider from "../models/Provider.js"
 const router = express.Router()
 const upload = multer()
 
-import { parseProviderData, providerRules, validate } from "../middlewares/middlewares.js"
+import { parseProviderData, providerRules, validate, userRules } from "../middlewares/middlewares.js"
 
 router.post('/provider', upload.single('profilePhoto'), parseProviderData, providerRules, validate, async (req, res) => {
     console.log("hit")
@@ -49,13 +49,54 @@ router.post('/provider', upload.single('profilePhoto'), parseProviderData, provi
     }
 })
 
-router.post('/user', async (req, res) => {
-    const { data } = req.body
+router.post('/user', userRules, validate, async (req, res) => {
+    const { name, email, password, phone, address } = req.body
+    
     try {
+        const isProvider = await Provider.findOne({ email: email })
+        if (isProvider) {
+            return res.status(400).json({
+                success: false,
+                error: 'Email already registered as provider, use different email or log in as provider'
+            })
+        }
 
+        const existingUser = await User.findOne({ email: email })
+        if (existingUser) {
+            return res.status(400).json({
+                success: false,
+                error: 'Email already registered as user, use different email or log in as user'
+            })
+        }
+
+        const user = await User.create({
+            name,
+            email,
+            phone,
+            password: await bcrypt.hash(password, 10),
+            address,
+            role: 'user'
+        })
+
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                error: 'Error creating user'
+            })
+        }
+
+        return res.json({
+            success: true,
+            message: 'User created successfully',
+            user
+        });
     }
     catch (err) {
-
+        console.log(err)
+        res.status(500).json({
+            success: false,
+            error: 'Error creating user'
+        });
     }
 })
 
