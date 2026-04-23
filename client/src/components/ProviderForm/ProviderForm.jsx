@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 
 const AREAS = [
@@ -16,6 +17,8 @@ const SERVICES = [
 ]
 
 export default function ProviderForm() {
+
+    const navigate = useNavigate()
 
     const savedData = JSON.parse(sessionStorage.getItem('providerForm')) || {}
 
@@ -96,9 +99,18 @@ export default function ProviderForm() {
             })
 
             const data = await res.json()
+
+            if (data.success) {
+                console.log('provider created')
+                console.log(data.provider)
+                navigate('/')
+            } else {
+                alert('Error creating provider: ' + (data.error || 'Unknown error'))
+            }
         }
         catch (err) {
             console.log(err)
+            alert('Error creating provider: ' + (err.message || 'Unknown error'))
         }
     }
 
@@ -106,7 +118,7 @@ export default function ProviderForm() {
 
     return (
         <div className="min-h-screen flex items-center justify-center py-10 px-4">
-            <div className="w-full max-w-xl rounded-2xl p-8 shadow-md bg-[#e1e1e1]">
+            <div className="w-full max-w-4xl rounded-2xl p-8 shadow-md bg-[#e1e1e1]">
 
                 <h2 className="text-xl font-semibold text-gray-800 mb-1">Register as a Provider</h2>
                 <p className="text-sm text-gray-600 mb-6">Join our platform and start getting bookings in Hyderabad</p>
@@ -128,66 +140,73 @@ export default function ProviderForm() {
                         <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
                     </div>
 
-                    <div>
-                        <input {...register('name', { required: 'Name is required' })} placeholder="Full name" className={inp} />
-                        {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name.message}</p>}
-                    </div>
-
-                    {/* Email & Password */}
-                    <div className="grid grid-cols-1 gap-3">
-                        <div>
-                            <input {...register('email', { required: 'Email is required' })} type="email" placeholder="Email" className={`${inp}`} />
-                            {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
-
+                    <div className="grid grid-cols-2 gap-x-7 justify-items-center items-start">
+                        <div className="flex flex-col gap-4">
+                            <p className="text-sm font-medium text-gray-600 ">Personal Details</p>
                             <div>
-                                <input {...register('password', { required: 'Required', minLength: { value: 8, message: 'Min 8 characters' } })} type="password" placeholder="Password" className={inp} />
-                                {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password.message}</p>}
+                                <input {...register('name', { required: 'Name is required' })} placeholder="Full name" className={inp} />
+                                {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name.message}</p>}
                             </div>
-                            <div>
-                                <input {...register('confirmPassword', {
-                                    required: 'Required', minLength: { value: 8, message: 'Min 8 characters' }, validate: value => value === getValues('password') || 'Passwords do not match'
-                                })} type="password" placeholder="Confirm Password" className={inp} />
-                                {errors.confirmPassword && <p className="text-red-400 text-xs mt-1">{errors.confirmPassword.message}</p>}
-                            </div>
-                        </div>
-                    </div>
 
-                    {/* Area */}
-                    <div>
-                        <select {...register('area', { required: 'Please select your area' })} className={`${inp} text-gray-600`}>
-                            <option value="">Select your area</option>
-                            {AREAS.map(a => <option key={a}>{a}</option>)}
-                        </select>
-                        {errors.area && <p className="text-red-400 text-xs mt-1">{errors.area.message}</p>}
-                    </div>
-
-                    {/* Services */}
-                    <div>
-                        <p className="text-sm font-medium text-gray-600 mb-2">Services & pricing (₹)</p>
-                        <div className="bg-white border border-gray-200 rounded-xl p-3 space-y-2 max-h-64 overflow-y-auto">
-                            {SERVICES.map(s => (
-                                <div key={s} className="flex items-center gap-3">
-                                    <input type="checkbox" id={s} checked={s in selectedServices}
-                                        onChange={() => handleServiceToggle(s)}
-                                        className="accent-violet-500 w-4 h-4 cursor-pointer flex-shrink-0" />
-                                    <label htmlFor={s} className="text-sm text-gray-700 flex-1 cursor-pointer">{s}</label>
-                                    <input type="number" min="0" placeholder="₹ Price"
-                                        value={selectedServices[s] || ''}
-                                        onChange={e => handlePriceChange(s, e.target.value)}
-                                        disabled={!(s in selectedServices)}
-                                        className="w-24 border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-violet-400 bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed" />
+                            {/* Email & Password */}
+                            <div className="grid grid-cols-1 gap-3">
+                                <div>
+                                    <input {...register('email', { required: 'Email is required' })} type="email" placeholder="Email" className={`${inp}`} />
+                                    {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
                                 </div>
-                            ))}
-                        </div>
-                        {serviceError && <p className="text-red-400 text-xs mt-1">{serviceError}</p>}
-                    </div>
+                                <div className="grid grid-cols-2 gap-3">
 
+                                    <div>
+                                        <input {...register('password', { required: 'Required', minLength: { value: 8, message: 'Min 8 characters' } })} type="password" placeholder="Password" className={inp} />
+                                        {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password.message}</p>}
+                                    </div>
+                                    <div>
+                                        <input {...register('confirmPassword', {
+                                            required: 'Required', minLength: { value: 8, message: 'Min 8 characters' }, validate: value => value === getValues('password') || 'Passwords do not match'
+                                        })} type="password" placeholder="Confirm Password" className={inp} />
+                                        {errors.confirmPassword && <p className="text-red-400 text-xs mt-1">{errors.confirmPassword.message}</p>}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Area */}
+                            <div>
+                                <select {...register('area', { required: 'Please select your area' })} className={`${inp} text-gray-600`}>
+                                    <option value="">Select your area</option>
+                                    {AREAS.map(a => <option key={a}>{a}</option>)}
+                                </select>
+                                {errors.area && <p className="text-red-400 text-xs mt-1">{errors.area.message}</p>}
+                            </div>
+
+                        </div>
+                        <div className="min-w-full">
+                            {/* Services */}
+                            <div>
+                                <p className="text-sm font-medium text-gray-600 mb-2">Services & pricing (₹)</p>
+                                <div className="bg-white border border-gray-200 rounded-xl p-3 space-y-2 max-h-64 overflow-y-auto">
+                                    {SERVICES.map(s => (
+                                        <div key={s} className="flex items-center gap-3">
+                                            <input type="checkbox" id={s} checked={s in selectedServices}
+                                                onChange={() => handleServiceToggle(s)}
+                                                className="accent-violet-500 w-4 h-4 cursor-pointer flex-shrink-0" />
+                                            <label htmlFor={s} className="text-sm text-gray-700 flex-1 cursor-pointer">{s}</label>
+                                            <input type="number" min="0" placeholder="₹ Price"
+                                                value={selectedServices[s] || ''}
+                                                onChange={e => handlePriceChange(s, e.target.value)}
+                                                disabled={!(s in selectedServices)}
+                                                className="w-24 border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-violet-400 bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed" />
+                                        </div>
+                                    ))}
+                                </div>
+                                {serviceError && <p className="text-red-400 text-xs mt-1">{serviceError}</p>}
+                            </div>
+
+                        </div>
+                    </div>
                     {/* Bio */}
                     <textarea {...register('bio')} rows={3}
                         placeholder="Short intro — your experience and why customers should hire you"
-                        className={`${inp} resize-none`} />
+                        className={`${inp} resize-none h-[9rem]`} />
 
                     <button type="submit"
                         className="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-lg py-2.5 text-sm font-medium transition">
