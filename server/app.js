@@ -7,6 +7,7 @@ import cors from "cors"
 
 import cookieParser from "cookie-parser"
 
+import signUpRoute from "./routes/signup.js"
 import loginRoute from "./routes/login.js"
 
 const app = express()
@@ -32,6 +33,7 @@ connectDB()
         console.log(err)
     })
 
+app.use('/api/signup', signUpRoute)
 app.use('/api/login', loginRoute)
 
 app.listen(PORT, HOST, () => {

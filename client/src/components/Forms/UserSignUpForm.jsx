@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 
 const AREAS = [
@@ -8,7 +8,7 @@ const AREAS = [
     'LB Nagar', 'Dilsukhnagar', 'Begumpet', 'Mehdipatnam'
 ]
 
-export default function UserLogInForm() {
+export default function UserSignUpForm() {
 
     const navigate = useNavigate()
 
@@ -25,23 +25,21 @@ export default function UserLogInForm() {
 
         const cleanData = {
             ...rest,
-            address: { area, street, landmark }  
+            address: { area, street, landmark }
         }
 
         // console.log(cleanData)
 
         try {
-            const res = await fetch('http://localhost:5000/api/login/user', {
+            const res = await fetch('http://localhost:5000/api/signup/user', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(cleanData )
+                body: JSON.stringify(cleanData)
             })
 
             const data = await res.json()
-            console.log(data)
 
             if (data.success) {
-                console.log(data.user)
                 navigate('/')
             }
             else {
@@ -146,6 +144,12 @@ export default function UserLogInForm() {
                     )}
 
                 </form>
+                <div className="flex justify-center items-center mt-5">
+                    Already have an account?
+                    <Link to="/login/user" className="text-violet-600 hover:underline ml-1">
+                        Log in
+                    </Link>
+                </div>
             </div>
         </div>
     )

@@ -1,7 +1,7 @@
-import ProviderForm from "../components/ProviderForm/ProviderForm"
+import ProviderLogInForm from "../components/Forms/ProviderLogIn.jsx"
 
 export default function ProviderLogInPage() {
     return (
-        <ProviderForm />
+        <ProviderLogInForm />
     )
 }

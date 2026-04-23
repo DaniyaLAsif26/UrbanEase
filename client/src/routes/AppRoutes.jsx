@@ -2,6 +2,8 @@ import { Routes, Route } from "react-router-dom"
 
 import HomePage from "../pages/HomePage.jsx"
 import AllServices from "../pages/ServicesPage.jsx"
+import ProviderSignUpPage from "../pages/ProviderSignUpPage.jsx"
+import UserSignUpPage from "../pages/UserSignUpPage.jsx"
 import ProviderLogInPage from "../pages/ProviderLogInPage.jsx"
 import UserLogInPage from "../pages/UserLogInPage.jsx"
 
@@ -18,10 +20,16 @@ export default function AppRoutes() {
             <Route path="/services" element={<AllServices />}
             />
 
-            <Route path="/register/provider" element={<ProviderLogInPage />}
+            <Route path="/register/provider" element={<ProviderSignUpPage />}
             />
 
-            <Route path="/register/user" element={<UserLogInPage />}
+            <Route path="/register/user" element={<UserSignUpPage />}
+            />
+
+            <Route path="/login/provider" element={<ProviderLogInPage />}
+            />
+
+            <Route path="/login/user" element={<UserLogInPage />}
             />
         </Routes>
     )

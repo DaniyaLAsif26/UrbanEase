@@ -1,103 +1,91 @@
-import express from "express"
-import jwt from "jsonwebtoken"
-import bcrypt from "bcrypt"
-import multer from 'multer'
-
-import dotenv from "dotenv"
-dotenv.config()
-
-import User from "../models/User.js"
-import Provider from "../models/Provider.js"
+import express from 'express'
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 
 const router = express.Router()
-const upload = multer()
 
-import { parseProviderData, providerRules, validate, userRules } from "../middlewares/middlewares.js"
+import Provider from '../models/Provider.js'
+import User from '../models/User.js'
 
-router.post('/provider', upload.single('profilePhoto'), parseProviderData, providerRules, validate, async (req, res) => {
-    console.log("hit")
-
-    const { name, email, password, area, bio, services } = req.body
-    const image = req.file
-
-    if (!image) return res.status(400).json({ error: 'Profile photo required' });
-
+router.post('/provider', async (req, res) => {
     try {
-        const provider = await Provider.create({
-            name,
-            email,
-            password: await bcrypt.hash(password, 10),
-            area,
-            bio,
-            services: services.map(s => ({ category: s.category, price: s.price })),
-            role: 'provider',
-            // profilePhoto: { data: image.buffer, contentType: image.mimetype }
-        })
+        const { identifier, loginType, password } = req.body
 
-        res.status(201).json({
+        const provider = await Provider.findOne({ [loginType]: identifier })
+
+        if (!provider) {
+            return res.status(400).json({
+                success: false,
+                error: 'No provider found with the given credentials'
+
+            })
+        }
+
+        const isMatch = await bcrypt.compare(password, provider.password)
+
+        if (!isMatch) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid password'
+            })
+        }
+
+        return res.status(200).json({
             success: true,
-            message: 'Provider created successfully',
+            message: 'Provider logged in successfully',
             provider
-        });
+        })
     }
     catch (err) {
-        console.error(err)
-        res.status(500).json({
+        console.log(err)
+        return res.status(500).json({
             success: false,
-            error: 'Error creating provider'
-        });
+            error: 'Error logging in provider'
+        })
     }
+
+
 })
 
-router.post('/user', userRules, validate, async (req, res) => {
-    const { name, email, password, phone, address } = req.body
-    
+
+router.post('/user', async (req, res) => {
     try {
-        const isProvider = await Provider.findOne({ email: email })
-        if (isProvider) {
-            return res.status(400).json({
-                success: false,
-                error: 'Email already registered as provider, use different email or log in as provider'
-            })
-        }
+        const { identifier, loginType, password } = req.body
 
-        const existingUser = await User.findOne({ email: email })
-        if (existingUser) {
-            return res.status(400).json({
-                success: false,
-                error: 'Email already registered as user, use different email or log in as user'
-            })
-        }
-
-        const user = await User.create({
-            name,
-            email,
-            phone,
-            password: await bcrypt.hash(password, 10),
-            address,
-            role: 'user'
-        })
+        const user = await User.findOne({ [loginType]: identifier })
 
         if (!user) {
             return res.status(400).json({
                 success: false,
-                error: 'Error creating user'
+                error: 'No User found with the given credentials'
+
             })
         }
 
-        return res.json({
+        const isMatch = await bcrypt.compare(password, user.password)
+
+        if (!isMatch) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid password'
+            })
+        }
+
+        return res.status(200).json({
             success: true,
-            message: 'User created successfully',
+            message: 'User logged in successfully',
             user
-        });
+        })
     }
     catch (err) {
         console.log(err)
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
-            error: 'Error creating user'
-        });
+            error: 'Error logging in User'
+        })
     }
+
+
 })
 
 export default router;

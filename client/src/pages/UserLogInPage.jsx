@@ -1,7 +1,7 @@
-import UserLoginForm from "../components/ProviderForm/UserLogInForm"
+import ProviderLoginForm from "../components/Forms/ProviderLogIn";
 
 export default function UserLogInPage() {
     return (
-        <UserLoginForm />
+        <ProviderLoginForm isUser={true} />
     )
 }

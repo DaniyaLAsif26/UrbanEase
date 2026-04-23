@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 
 const AREAS = [
@@ -16,13 +16,13 @@ const SERVICES = [
     'Gardening & landscaping', 'Laundry & ironing', 'Beauty & grooming'
 ]
 
-export default function ProviderForm() {
+export default function ProviderSignUpForm() {
 
     const navigate = useNavigate()
 
     const savedData = JSON.parse(sessionStorage.getItem('providerForm')) || {}
 
-    const { register, handleSubmit, getValues, watch, formState: { errors } } = useForm({
+    const { register, handleSubmit, getValues, reset, watch, formState: { errors } } = useForm({
         defaultValues: savedData
     })
 
@@ -46,6 +46,9 @@ export default function ProviderForm() {
     }, [])
 
     useEffect(() => {
+
+        if (!watchedData.name && !watchedData.email) return
+
         const dataToSave = {
             ...watchedData,
             selectedServices,
@@ -72,10 +75,13 @@ export default function ProviderForm() {
     const handlePriceChange = (name, price) =>
         setSelectedServices(prev => ({ ...prev, [name]: price }))
 
+    const handleClear = () => {
+        sessionStorage.removeItem('providerForm')
+        reset()
+    }
+
     const onSubmit = async (data) => {
         setServiceError('')
-
-        console.log('hello')
 
         const services = Object.entries(selectedServices).map(([category, price]) => ({
             category, price: Number(price)
@@ -83,29 +89,35 @@ export default function ProviderForm() {
 
         if (services.length === 0) return setServiceError('Please select at least one service.')
         if (services.some(s => !s.price)) return setServiceError('Enter a price for each selected service.')
-        if (!image) return setServiceError('Profile photo is required.')
 
         const { confirmPassword, selectedServices: _, ...cleanData } = data
 
-        const formData = new FormData()
-        formData.append('profilePhoto', image)
-        formData.append('data', JSON.stringify({ ...cleanData, services }))
-
-
         try {
-            const res = await fetch('http://localhost:5000/api/login/provider', {
+            const res = await fetch('http://localhost:5000/api/signup/provider', {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ ...cleanData, services })
             })
 
-            const data = await res.json()
+            const result = await res.json()
 
-            if (data.success) {
-                console.log('provider created')
-                console.log(data.provider)
+            if (result.success) {
+                sessionStorage.removeItem('providerForm')
+
+                reset({
+                    name: '', email: '', phone: '',
+                    password: '', confirmPassword: '',
+                    area: '', bio: ''
+                })
+
+                setSelectedServices({})
+                setPreview(null)
+                setImage(null)
                 navigate('/')
             } else {
-                alert('Error creating provider: ' + (data.error || 'Unknown error'))
+                alert('Error creating provider: ' + (result.error || 'Unknown error'))
             }
         }
         catch (err) {
@@ -125,21 +137,6 @@ export default function ProviderForm() {
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
 
-                    {/* Profile Image */}
-                    <div className="flex items-center gap-4">
-                        <div onClick={() => fileRef.current.click()}
-                            className="w-16 h-16 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer overflow-hidden bg-white hover:border-violet-400 transition">
-                            {preview
-                                ? <img src={preview} alt="preview" className="w-full h-full object-cover" />
-                                : <span className="text-2xl text-gray-300">+</span>}
-                        </div>
-                        <div>
-                            <p className="text-sm font-medium text-gray-600">Profile photo</p>
-                            <p className="text-xs text-gray-400">Click to upload</p>
-                        </div>
-                        <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
-                    </div>
-
                     <div className="grid grid-cols-2 gap-x-7 justify-items-center items-start">
                         <div className="flex flex-col gap-4">
                             <p className="text-sm font-medium text-gray-600 ">Personal Details</p>
@@ -153,6 +150,10 @@ export default function ProviderForm() {
                                 <div>
                                     <input {...register('email', { required: 'Email is required' })} type="email" placeholder="Email" className={`${inp}`} />
                                     {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
+                                </div>
+                                <div>
+                                    <input {...register('phone', { required: 'Phone is required', pattern: { value: /^[0-9]{10}$/, message: 'Enter valid 10 digit number' } })} type="tel" placeholder="Phone number" className={inp} />
+                                    {errors.phone && <p className="text-red-400 text-xs mt-1">{errors.phone.message}</p>}
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
 
@@ -179,11 +180,11 @@ export default function ProviderForm() {
                             </div>
 
                         </div>
-                        <div className="min-w-full">
+                        <div className="min-w-full min-h-full">
                             {/* Services */}
                             <div>
                                 <p className="text-sm font-medium text-gray-600 mb-2">Services & pricing (₹)</p>
-                                <div className="bg-white border border-gray-200 rounded-xl p-3 space-y-2 max-h-64 overflow-y-auto">
+                                <div className="bg-white border border-gray-200 rounded-xl p-3 space-y-2 max-h-[17rem] overflow-y-auto">
                                     {SERVICES.map(s => (
                                         <div key={s} className="flex items-center gap-3">
                                             <input type="checkbox" id={s} checked={s in selectedServices}
@@ -214,7 +215,15 @@ export default function ProviderForm() {
                     </button>
 
                 </form>
+
+                <div className="flex justify-center items-center mt-5">
+                    Already have an account?
+                    <Link to="/login/provider" className="text-violet-600 hover:underline ml-1">
+                        Log in
+                    </Link>
+                </div>
             </div>
+
         </div>
     )
 }

@@ -19,6 +19,9 @@ export const providerRules = [
     body('email').trim().isEmail().withMessage('Valid email required')
         .normalizeEmail(),
 
+    body('phone').trim().notEmpty().withMessage('Phone is required')
+        .isMobilePhone().withMessage('Valid phone number required'),
+
     body('password').isLength({ min: 8 }).withMessage('Min 8 characters'),
 
     body('area').trim().notEmpty().withMessage('Area is required'),
@@ -36,7 +39,8 @@ export const userRules = [
     body('email').trim().isEmail().withMessage('Valid email required')
         .normalizeEmail(),
 
-    body('phone').trim().notEmpty().withMessage('Phone is required'),
+    body('phone').trim().notEmpty().withMessage('Phone is required')
+        .isMobilePhone().withMessage('Valid phone number required'),
 
     body('password').isLength({ min: 8 }).withMessage('Min 8 characters'),
 
