@@ -10,6 +10,7 @@ import UserLogInPage from "../pages/UserLogInPage.jsx"
 import HosueCleaningPage from "../pages/Services/HouseCleaningPage.jsx"
 
 import UserProfilePage from '../pages/UserProfilePage.jsx'
+import ProviderProfilePage from '../pages/ProviderProfilePage.jsx'
 
 export default function AppRoutes() {
     return (
@@ -39,6 +40,8 @@ export default function AppRoutes() {
             <Route path="/services/house-cleaning" element={<HosueCleaningPage />} />
 
             <Route path="/profile/user" element={<UserProfilePage />} />
+
+            <Route path="/profile/provider" element={<ProviderProfilePage />} />
         </Routes>
     )
 }

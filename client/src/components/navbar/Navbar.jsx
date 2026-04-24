@@ -13,7 +13,7 @@ import { useLogin } from "../../context/LoginContext";
 
 export default function Navbar() {
 
-    const { isUserLoggedIn, isUserLoaded } = useLogin()
+    const { isUserLoggedIn, isUserLoaded, isProviderLoggedIn, isProviderLoaded } = useLogin()
 
     const [open, setOpen] = useState(false)
     const navigate = useNavigate()
@@ -68,11 +68,20 @@ export default function Navbar() {
             }
 
             <div className="flex justify-center items-center gap-5 mr-7 font-semibold">
-                <Link to="/register/provider">
-                    <div>Become a Provider</div>
-                </Link>
+
+                {isProviderLoaded && isProviderLoggedIn ?
+                    <Link to="/profile/provider">
+                        <div>Become a Provider</div>
+                    </Link>
+                    :
+                    <Link to="/register/provider">
+                        <div>Become a Provider </div>
+                    </Link>
+
+                }
+
                 <div>Help</div>
-                {isUserLoggedIn ?
+                {isUserLoaded && isUserLoggedIn ?
                     <Link to="/profile/user">
                         <div><AccountCircleIcon style={{ fontSize: "2.25rem" }} /></div>
                     </Link>
