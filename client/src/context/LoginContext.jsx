@@ -4,7 +4,11 @@ const LoginContext = createContext()
 
 const BackEndRoute = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
+import { useUser } from './UserContext'
+
 export const LoginProvider = ({ children }) => {
+
+    const { fetchUserData, fetchProviderData } = useUser()
 
     const [isUserLoggedIn, setIsUserLoggedIn] = useState(false)
     const [isProviderLoggedIn, setIsProviderLoggedIn] = useState(false)
@@ -22,8 +26,11 @@ export const LoginProvider = ({ children }) => {
             })
 
             const data = await res.json()
+            if (data.success) {
+                setIsUserLoggedIn(data.success)
+                fetchUserData()
+            }
 
-            setIsUserLoggedIn(data.success)
         }
         catch (err) {
             console.log(err)
@@ -43,7 +50,11 @@ export const LoginProvider = ({ children }) => {
 
             const data = await res.json()
 
-            setIsProviderLoggedIn(data.success)
+            if (data.success) {
+                setIsProviderLoggedIn(data.success)
+                fetchProviderData()
+            }
+
         }
         catch (err) {
             console.log(err)

@@ -9,7 +9,7 @@ const AREAS = [
 ]
 
 import { useLogin } from '../../context/LoginContext'
-import { useUser } from '../../context/UserContex'
+import { useUser } from '../../context/UserContext'
 
 export default function UserSignUpForm() {
 

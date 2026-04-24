@@ -6,16 +6,16 @@ import App from './App.jsx'
 import './index.css'
 
 import { LoginProvider } from "./context/LoginContext.jsx";
-import { UserProvider } from './context/UserContex.jsx';
+import { UserProvider } from './context/UserContext.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      <LoginProvider>
-        <UserProvider>
+      <UserProvider>
+        <LoginProvider>
           <App />
-        </UserProvider>
-      </LoginProvider>
+        </LoginProvider>
+      </UserProvider>
     </BrowserRouter>
   </StrictMode>,
 )
