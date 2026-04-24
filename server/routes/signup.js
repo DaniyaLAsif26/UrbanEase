@@ -10,11 +10,21 @@ import Provider from "../models/Provider.js"
 
 const router = express.Router()
 
+const isProduction = process.env.NODE_ENV === 'production';
+
+const getCookieOptions = (maxAge) => ({
+    httpOnly: true,
+    secure: isProduction, // true in production (HTTPS), false in development
+    // sameSite: isProduction ? "none" : "lax", // "none" for cross-origin, "lax" for same-origin
+    sameSite: isProduction ? 'none' : 'lax',
+    maxAge: maxAge,
+});
+
 import { parseProviderData, providerRules, validate, userRules } from "../middlewares/middlewares.js"
 
 router.post('/provider', providerRules, validate, async (req, res) => {
 
-    const { name, email,phone, password, area, bio, services } = req.body
+    const { name, email, phone, password, area, bio, services } = req.body
 
     const existingProvider = await Provider.findOne({ email: email })
     if (existingProvider) {
@@ -35,6 +45,16 @@ router.post('/provider', providerRules, validate, async (req, res) => {
             services: services.map(s => ({ category: s.category, price: s.price })),
             role: 'provider',
         })
+
+        const providerToken = jwt.sign({
+            id: provider._id,
+            role: 'provider'
+        },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' }
+        )
+
+        res.cookie("providerToken", providerToken, getCookieOptions(7 * 24 * 60 * 60 * 1000))
 
         res.status(201).json({
             success: true,
@@ -86,6 +106,16 @@ router.post('/user', userRules, validate, async (req, res) => {
                 error: 'Error creating user'
             })
         }
+
+        const userToken = jwt.sign({
+            id: user._id,
+            role: 'user'
+        },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' }
+        )
+
+        res.cookie("userToken", userToken, getCookieOptions(7 * 24 * 60 * 60 * 1000))
 
         return res.json({
             success: true,

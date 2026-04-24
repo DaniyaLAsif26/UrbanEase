@@ -27,6 +27,7 @@ export default function ProviderLoginForm({ isUser = false }) {
         try {
             const res = await fetch(endPoint, {
                 method: 'POST',
+                credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ identifier, loginType, password: data.password })
             })

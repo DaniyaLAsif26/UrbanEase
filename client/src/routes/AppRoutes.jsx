@@ -7,6 +7,8 @@ import UserSignUpPage from "../pages/UserSignUpPage.jsx"
 import ProviderLogInPage from "../pages/ProviderLogInPage.jsx"
 import UserLogInPage from "../pages/UserLogInPage.jsx"
 
+import HosueCleaningPage from "../pages/Services/HouseCleaningPage.jsx"
+
 export default function AppRoutes() {
     return (
 
@@ -31,6 +33,8 @@ export default function AppRoutes() {
 
             <Route path="/login/user" element={<UserLogInPage />}
             />
+
+            <Route path="/services/house-cleaning" element={<HosueCleaningPage />} />
         </Routes>
     )
 }
