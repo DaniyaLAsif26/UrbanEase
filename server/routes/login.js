@@ -113,8 +113,37 @@ router.post('/user', async (req, res) => {
             error: 'Error logging in User'
         })
     }
+})
 
+router.get('/verify/user', async (req, res) => {
+    try {
+        const token = req.cookies.userToken
 
+        if (!token) {
+            return res.json({
+                success: false
+            })
+        }
+
+        const decode = jwt.verify(token, process.env.JWT_SECRET)
+
+        if (decode.role !== 'user') {
+            return res.json({
+                success: false,
+            })
+        }
+
+        res.json({
+            success: true
+        })
+    }
+    catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Error logging in User'
+        })
+    }
 })
 
 export default router;

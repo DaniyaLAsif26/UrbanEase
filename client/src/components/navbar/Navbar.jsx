@@ -1,6 +1,7 @@
 import logo from "../../assets/logo.png"
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
@@ -8,7 +9,11 @@ import { Link } from "react-router-dom"
 
 import { services } from "../../data/services"
 
+import { useLogin } from "../../context/LoginContext";
+
 export default function Navbar() {
+
+    const { isUserLoggedIn, isUserLoaded } = useLogin()
 
     const [open, setOpen] = useState(false)
     const navigate = useNavigate()
@@ -62,14 +67,21 @@ export default function Navbar() {
                 </div>
             }
 
-            <div className="flex justify-center items-center gap-7 mr-7 font-semibold">
+            <div className="flex justify-center items-center gap-5 mr-7 font-semibold">
                 <Link to="/register/provider">
                     <div>Become a Provider</div>
                 </Link>
                 <div>Help</div>
-                <Link to="/register/user">
-                <div>Log In</div>
-                </Link>
+                {isUserLoggedIn ?
+                    <Link to="/profile">
+                        <div><AccountCircleIcon style={{fontSize : "2.25rem"}}/></div>
+                    </Link>
+                    :
+                    <Link to="/register/user">
+                        <div>Log In</div>
+                    </Link>
+                }
+
             </div>
         </nav>
     )
