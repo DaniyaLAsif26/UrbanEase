@@ -3,7 +3,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
-import { useState } from "react"
+import { useState , useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { Link } from "react-router-dom"
 
@@ -74,7 +74,7 @@ export default function Navbar() {
                 <div>Help</div>
                 {isUserLoggedIn ?
                     <Link to="/profile">
-                        <div><AccountCircleIcon style={{fontSize : "2.25rem"}}/></div>
+                        <div><AccountCircleIcon style={{ fontSize: "2.25rem" }} /></div>
                     </Link>
                     :
                     <Link to="/register/user">

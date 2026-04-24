@@ -1,13 +1,10 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
 
 const LoginContext = createContext()
 
 const BackEndRoute = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
 export const LoginProvider = ({ children }) => {
-    const navigate = useNavigate()
-    const location = useLocation()
 
     const [isUserLoggedIn, setIsUserLoggedIn] = useState(false)
     const [isProviderLoggedIn, setIsProviderLoggedIn] = useState(false)
@@ -37,8 +34,29 @@ export const LoginProvider = ({ children }) => {
         }
     }
 
+    const verifyProviderLogin = async () => {
+        try {
+            const res = await fetch(`${BackEndRoute}/api/login/verify/provider`, {
+                method: "GET",
+                credentials: "include"
+            })
+
+            const data = await res.json()
+
+            setIsProviderLoggedIn(data.success)
+        }
+        catch (err) {
+            console.log(err)
+            setIsProviderLoggedIn(false)
+        }
+        finally {
+            setIsProviderLoaded(true)
+        }
+    }
+
     useEffect(() => {
         verifyUserLogin()
+        verifyProviderLogin()
     }, [])
 
     return (
@@ -46,7 +64,11 @@ export const LoginProvider = ({ children }) => {
             {
                 isUserLoaded,
                 isUserLoggedIn,
-                verifyUserLogin
+                verifyUserLogin,
+
+                isProviderLoaded,
+                isProviderLoggedIn,
+                verifyProviderLogin,
             }
         }
         >

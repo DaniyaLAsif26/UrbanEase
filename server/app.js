@@ -9,6 +9,7 @@ import cookieParser from "cookie-parser"
 
 import signUpRoute from "./routes/signup.js"
 import loginRoute from "./routes/login.js"
+import userRoutes from './routes/user.js'
 
 const app = express()
 app.use(express.json())
@@ -39,6 +40,7 @@ connectDB()
 
 app.use('/api/signup', signUpRoute)
 app.use('/api/login', loginRoute)
+app.use('/api/profile', userRoutes)
 
 app.listen(PORT, HOST, () => {
     console.log(`Server running on port ${PORT}`)

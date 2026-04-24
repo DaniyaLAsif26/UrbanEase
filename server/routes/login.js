@@ -146,4 +146,35 @@ router.get('/verify/user', async (req, res) => {
     }
 })
 
+router.get('/verify/provider', async (req, res) => {
+    try {
+        const token = req.cookies.providerToken
+
+        if (!token) {
+            return res.json({
+                success: false
+            })
+        }
+
+        const decode = jwt.verify(token, process.env.JWT_SECRET)
+
+        if (decode.role !== 'provider') {
+            return res.json({
+                success: false,
+            })
+        }
+
+        res.json({
+            success: true
+        })
+    }
+    catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Error logging in provider'
+        })
+    }
+})
+
 export default router;

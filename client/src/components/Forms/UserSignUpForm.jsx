@@ -8,7 +8,13 @@ const AREAS = [
     'LB Nagar', 'Dilsukhnagar', 'Begumpet', 'Mehdipatnam'
 ]
 
+import { useLogin } from '../../context/LoginContext'
+import { useUser } from '../../context/UserContex'
+
 export default function UserSignUpForm() {
+
+    const { verifyUserLogin } = useLogin()
+    const { fetchUserData } = useUser()
 
     const navigate = useNavigate()
 
@@ -28,8 +34,6 @@ export default function UserSignUpForm() {
             address: { area, street, landmark }
         }
 
-        // console.log(cleanData)
-
         try {
             const res = await fetch('http://localhost:5000/api/signup/user', {
                 method: 'POST',
@@ -40,6 +44,8 @@ export default function UserSignUpForm() {
             const data = await res.json()
 
             if (data.success) {
+                verifyUserLogin()
+                fetchUserData()
                 navigate('/')
             }
             else {

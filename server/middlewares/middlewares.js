@@ -1,5 +1,5 @@
+import jwt from 'jsonwebtoken'
 import { body, validationResult } from 'express-validator'
-
 
 //parsing provider form data
 export const parseProviderData = (req, res, next) => {
@@ -60,3 +60,29 @@ export const validate = (req, res, next) => {
     }
     next();
 };
+
+export const verifyUserToken = (req, res, next) => {
+    const token = req.cookies.userToken
+    if (!token) return res.status(401).json({ success: false, error: 'Unauthorized' })
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        req.user = decoded
+        next()
+    } catch (err) {
+        return res.status(401).json({ success: false, error: 'Invalid token' })
+    }
+}
+
+export const verifyProviderToken = (req, res, next) => {
+    const token = req.cookies.providerToken
+    if (!token) return res.status(401).json({ success: false, error: 'Unauthorized' })
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        req.provider = decoded
+        next()
+    } catch (err) {
+        return res.status(401).json({ success: false, error: 'Invalid token' })
+    }
+}

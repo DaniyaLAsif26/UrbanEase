@@ -16,7 +16,13 @@ const SERVICES = [
     'Gardening & landscaping', 'Laundry & ironing', 'Beauty & grooming'
 ]
 
+import { useLogin } from '../../context/LoginContext'
+import { useUser } from '../../context/UserContex'
+
 export default function ProviderSignUpForm() {
+
+    const { verifyProviderLogin } = useLogin()
+    const { fetchProviderData } = useUser()
 
     const navigate = useNavigate()
 
@@ -31,10 +37,7 @@ export default function ProviderSignUpForm() {
     const [selectedServices, setSelectedServices] = useState(
         savedData.selectedServices || {}
     )
-    const [preview, setPreview] = useState(null)
-    const [image, setImage] = useState(null)
     const [serviceError, setServiceError] = useState('')
-    const fileRef = useRef()
 
     useEffect(() => {
         const saved = JSON.parse(sessionStorage.getItem('providerForm'))
@@ -56,14 +59,7 @@ export default function ProviderSignUpForm() {
         }
 
         sessionStorage.setItem('providerForm', JSON.stringify(dataToSave))
-    }, [watchedData, selectedServices, preview])
-
-    const handleImageChange = e => {
-        const file = e.target.files[0]
-        if (!file) return
-        setImage(file)
-        setPreview(URL.createObjectURL(file))
-    }
+    }, [watchedData, selectedServices])
 
     const handleServiceToggle = name => {
         setSelectedServices(prev => {
@@ -113,8 +109,8 @@ export default function ProviderSignUpForm() {
                 })
 
                 setSelectedServices({})
-                setPreview(null)
-                setImage(null)
+                verifyProviderLogin()
+                fetchProviderData()
                 navigate('/')
             } else {
                 alert('Error creating provider: ' + (result.error || 'Unknown error'))
