@@ -27,3 +27,9 @@ export const services = [
         ]
     },
 ]
+
+export const areas = [
+    'Moosa Bowli','Banjara Hills', 'Jubilee Hills', 'Hitech City', 'Madhapur',
+    'Gachibowli', 'Secunderabad', 'Ameerpet', 'Kukatpally',
+    'LB Nagar', 'Dilsukhnagar', 'Begumpet', 'Mehdipatnam'
+]

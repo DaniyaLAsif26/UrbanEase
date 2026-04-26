@@ -2,11 +2,8 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 
-const AREAS = [
-    'Banjara Hills', 'Jubilee Hills', 'Hitech City', 'Madhapur',
-    'Gachibowli', 'Secunderabad', 'Ameerpet', 'Kukatpally',
-    'LB Nagar', 'Dilsukhnagar', 'Begumpet', 'Mehdipatnam'
-]
+import { areas } from '../../data/services.js'
+
 
 import { useLogin } from '../../context/LoginContext'
 import { useUser } from '../../context/UserContext'
@@ -37,6 +34,7 @@ export default function UserSignUpForm() {
         try {
             const res = await fetch('http://localhost:5000/api/signup/user', {
                 method: 'POST',
+                credentials : "include",
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(cleanData)
             })
@@ -122,7 +120,7 @@ export default function UserSignUpForm() {
                             <div>
                                 <select {...register('area', { required: 'Please select your area' })} className={`${inp} text-gray-600`}>
                                     <option value="">Select your area</option>
-                                    {AREAS.map(a => <option key={a}>{a}</option>)}
+                                    {areas.map(a => <option key={a}>{a}</option>)}
                                 </select>
                                 {errors.area && <p className="text-red-400 text-xs mt-1">{errors.area.message}</p>}
                             </div>

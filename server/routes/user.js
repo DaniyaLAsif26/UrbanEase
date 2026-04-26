@@ -7,7 +7,7 @@ const router = express.Router()
 import Provider from '../models/Provider.js'
 import User from '../models/User.js'
 
-import { verifyUserToken , verifyProviderToken } from '../middlewares/middlewares.js'
+import { verifyUserToken, verifyProviderToken } from '../middlewares/middlewares.js'
 
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -29,6 +29,43 @@ router.get('/provider', verifyProviderToken, async (req, res) => {
         return res.status(200).json({ success: true, provider })
     } catch (err) {
         return res.status(500).json({ success: false, error: 'Error fetching provider' })
+    }
+})
+
+router.get('/all-providers', async (req, res) => {
+    try {
+        const { service, area } = req.query
+
+        if (!service || !area) {
+            return res.json({
+                success: false,
+                error: "Service and area necessary"
+            })
+        }
+
+        const allProviders = await Provider.find({
+            "services.category": service,
+            area: area
+        })
+
+        if (!allProviders || allProviders.length === 0) {
+            return res.json({
+                success: false,
+                error: "No service Providers Found"
+            })
+        }
+
+        return res.status(200).json({
+            success: true,
+            allProviders
+        })
+    }
+    catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Error fetching provider'
+        })
     }
 })
 

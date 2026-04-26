@@ -24,19 +24,29 @@ import { parseProviderData, providerRules, validate, userRules } from "../middle
 
 router.post('/provider', providerRules, validate, async (req, res) => {
 
-    const { name, email, phone, password, area, bio, services } = req.body
-
-    const existingProvider = await Provider.findOne({ email: email })
-    if (existingProvider) {
-        return res.status(400).json({
-            success: false,
-            error: 'Email already registered as provider, use different email or log in as provider'
-        })
-    }
+    const { name, languages, email, phone, password, area, bio, services } = req.body
 
     try {
+
+        const existingProvider = await Provider.findOne({ email: email })
+        if (existingProvider) {
+            return res.status(400).json({
+                success: false,
+                error: 'Email already registered as provider, use different email or log in as provider'
+            })
+        }
+
+        const existingUser = await User.findOne({ email: email })
+        if (existingUser) {
+            return res.status(400).json({
+                success: false,
+                error: 'Email already registered as user, use different email or log in as user'
+            })
+        }
+
         const provider = await Provider.create({
             name,
+            languages,
             email,
             phone,
             password: await bcrypt.hash(password, 10),

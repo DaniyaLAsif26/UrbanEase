@@ -30,6 +30,8 @@ export const providerRules = [
 
     body('services').isArray({ min: 1 }).withMessage('At least one service required'),
 
+    body('languages').isArray({ min: 1 }).withMessage('At least one language required'),
+
 ];
 
 export const userRules = [

@@ -2,10 +2,13 @@ import { useState, useRef, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 
-const AREAS = [
-    'Banjara Hills', 'Jubilee Hills', 'Hitech City', 'Madhapur',
-    'Gachibowli', 'Secunderabad', 'Ameerpet', 'Kukatpally',
-    'LB Nagar', 'Dilsukhnagar', 'Begumpet', 'Mehdipatnam'
+
+import { areas } from '../../data/services.js'
+
+const allLanguages = [
+    "Hindi",
+    "English",
+    "Telugu"
 ]
 
 const SERVICES = [
@@ -37,6 +40,10 @@ export default function ProviderSignUpForm() {
     const [selectedServices, setSelectedServices] = useState(
         savedData.selectedServices || {}
     )
+    const [languages, setLanguages] = useState(
+        savedData.languages || []
+    )
+    const [langError, setlangError] = useState('')
     const [serviceError, setServiceError] = useState('')
 
     useEffect(() => {
@@ -44,7 +51,7 @@ export default function ProviderSignUpForm() {
 
         if (saved) {
             if (saved.selectedServices) setSelectedServices(saved.selectedServices)
-            if (saved.imagePreview) setPreview(saved.imagePreview)
+            if (saved.languages) setLanguages(saved.languages)
         }
     }, [])
 
@@ -55,17 +62,26 @@ export default function ProviderSignUpForm() {
         const dataToSave = {
             ...watchedData,
             selectedServices,
-            imagePreview: preview
+            languages
         }
 
         sessionStorage.setItem('providerForm', JSON.stringify(dataToSave))
-    }, [watchedData, selectedServices])
+    }, [watchedData, selectedServices, languages])
 
     const handleServiceToggle = name => {
         setSelectedServices(prev => {
             if (name in prev) { const u = { ...prev }; delete u[name]; return u }
             return { ...prev, [name]: '' }
         })
+    }
+
+    const handleLanguageToggle = (lang) => {
+        setLanguages(prev =>
+            prev.includes(lang) ?
+                prev.filter(l => l !== lang)
+                :
+                [...prev, lang]
+        )
     }
 
     const handlePriceChange = (name, price) =>
@@ -85,28 +101,33 @@ export default function ProviderSignUpForm() {
 
         if (services.length === 0) return setServiceError('Please select at least one service.')
         if (services.some(s => !s.price)) return setServiceError('Enter a price for each selected service.')
+        if (languages.length === 0) {
+            setlangError('Please select at least one language')
+            return
+        }
 
         const { confirmPassword, selectedServices: _, ...cleanData } = data
 
         try {
             const res = await fetch('http://localhost:5000/api/signup/provider', {
                 method: 'POST',
+                credentials : "include",
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ ...cleanData, services })
+                body: JSON.stringify({ ...cleanData, services,languages })
             })
 
             const result = await res.json()
 
             if (result.success) {
-                sessionStorage.removeItem('providerForm')
+                // sessionStorage.removeItem('providerForm')
 
-                reset({
-                    name: '', email: '', phone: '',
-                    password: '', confirmPassword: '',
-                    area: '', bio: ''
-                })
+                // reset({
+                //     name: '', email: '', phone: '',
+                //     password: '', confirmPassword: '',
+                //     area: '', bio: ''
+                // })
 
                 setSelectedServices({})
                 verifyProviderLogin()
@@ -170,9 +191,25 @@ export default function ProviderSignUpForm() {
                             <div>
                                 <select {...register('area', { required: 'Please select your area' })} className={`${inp} text-gray-600`}>
                                     <option value="">Select your area</option>
-                                    {AREAS.map(a => <option key={a}>{a}</option>)}
+                                    {areas.map(a => <option key={a}>{a}</option>)}
                                 </select>
                                 {errors.area && <p className="text-red-400 text-xs mt-1">{errors.area.message}</p>}
+                            </div>
+
+                            <div>
+                                <p className="text-sm font-medium text-gray-600 mb-2">Select Languages</p>
+                                <div className="bg-white border border-gray-200 rounded-xl p-3 space-y-2 max-h-[17rem] overflow-y-auto">
+                                    {allLanguages.map(s => (
+                                        <div key={s} className="flex items-center gap-3">
+                                            <input type="checkbox" id={s}
+                                                checked={languages?.includes(s)}
+                                                onChange={() => handleLanguageToggle(s)}
+                                                className="accent-violet-500 w-4 h-4 cursor-pointer flex-shrink-0" />
+                                            <label htmlFor={s} className="text-sm text-gray-700 flex-1 cursor-pointer">{s}</label>
+                                        </div>
+                                    ))}
+                                </div>
+                                {langError && <p className="text-red-400 text-xs mt-1">{langError}</p>}
                             </div>
 
                         </div>
