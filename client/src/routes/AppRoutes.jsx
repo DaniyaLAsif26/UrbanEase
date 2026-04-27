@@ -8,6 +8,7 @@ import ProviderLogInPage from "../pages/ProviderLogInPage.jsx"
 import UserLogInPage from "../pages/UserLogInPage.jsx"
 
 import HosueCleaningPage from "../pages/Services/HouseCleaningPage.jsx"
+import LaundryIroningPage from "../pages/Services/LaundryIroningPage.jsx"
 
 import UserProfilePage from '../pages/UserProfilePage.jsx'
 import ProviderProfilePage from '../pages/ProviderProfilePage.jsx'
@@ -40,6 +41,7 @@ export default function AppRoutes() {
             />
 
             <Route path="/services/house-cleaning" element={<HosueCleaningPage />} />
+            <Route path="/services/laundry-ironing" element={<LaundryIroningPage />} />
 
             <Route path="/service/providers/:bookingId" element={<ServiceProvidersPage />} />
 

@@ -79,8 +79,6 @@ export default function HouseCleaning() {
             }
         }
 
-        console.log(finalData)
-
         try {
             const res = await fetch('http://localhost:5000/api/booking', {
                 method: 'POST',
