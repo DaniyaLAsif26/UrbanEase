@@ -278,7 +278,7 @@ export default function LaundryIroning() {
 
             if (result.success) {
                 const { bookingData } = result
-                navigate(`/service/providers/${bookingData._id}?service=${bookingData.serviceType}&area=${bookingData.address.area}&duration=${bookingData.duration}`,
+                navigate(`/service/providers/${bookingData._id}?service=${encodeURIComponent(bookingData.serviceType)}&area=${bookingData.address.area}&duration=${bookingData.duration}`,
                     { replace: true }
                 )
                 setDone(true);

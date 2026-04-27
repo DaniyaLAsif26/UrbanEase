@@ -7,11 +7,7 @@ import { useLogin } from "../../context/LoginContext"
 
 const BackEndRoute = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000"
 
-const AREAS = [
-    'Banjara Hills', 'Jubilee Hills', 'Hitech City', 'Madhapur',
-    'Gachibowli', 'Secunderabad', 'Ameerpet', 'Kukatpally',
-    'LB Nagar', 'Dilsukhnagar', 'Begumpet', 'Mehdipatnam'
-]
+import { areas } from '../../data/services.js'
 
 const SERVICES = [
     'Plumbing', 'Electrical work', 'House cleaning',
@@ -37,7 +33,7 @@ const serviceIcons = {
 }
 
 export default function ProviderProfile() {
-    const { providerData, clearProviderData, updateProviderData } = useUser()
+    const { providerData, clearProviderData, updateProviderData, fetchProviderData } = useUser()
     const { isProviderLoggedIn, verifyProviderLogin, isProviderLoaded } = useLogin()
     const navigate = useNavigate()
 
@@ -118,18 +114,22 @@ export default function ProviderProfile() {
     }
 
     const handleEditSave = async () => {
+
         setSaving(true)
         setSaveError("")
+
         try {
-            const res = await fetch(`${BackEndRoute}/api/profile/provider`, {
-                method: "PUT",
+            const res = await fetch(`${BackEndRoute}/api/profile/edit/provider`, {
+                method: "PATCH",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(editForm),
             })
+
             const data = await res.json()
+
             if (data.success) {
-                updateProviderData(editForm)
+                updateProviderData(data.provider)
                 setEditOpen(false)
             } else {
                 setSaveError(data.error || "Failed to save")
@@ -141,7 +141,6 @@ export default function ProviderProfile() {
         }
     }
 
-    // ── Services edit handlers ──
     const openServicesEdit = () => {
         const current = {}
         if (providerData?.services) {
@@ -187,15 +186,15 @@ export default function ProviderProfile() {
 
         setServicesSaving(true)
         try {
-            const res = await fetch(`${BackEndRoute}/api/profile/provider/services`, {
-                method: "PUT",
+            const res = await fetch(`${BackEndRoute}/api/profile/edit/provider`, {
+                method: "PATCH",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ services }),
             })
             const data = await res.json()
             if (data.success) {
-                updateProviderData({ services })
+                updateProviderData(data.provider)
                 setServicesEditOpen(false)
             } else {
                 setServicesSaveError(data.error || "Failed to save services")
@@ -208,11 +207,11 @@ export default function ProviderProfile() {
     }
 
     const statusMeta = {
-        completed:    { label: "Completed",   color: "#3B6D11", bg: "#EAF3DE" },
-        accepted:     { label: "Accepted",    color: "#3C3489", bg: "#EEEDFE" },
+        completed: { label: "Completed", color: "#3B6D11", bg: "#EAF3DE" },
+        accepted: { label: "Accepted", color: "#3C3489", bg: "#EEEDFE" },
         "in_progress": { label: "In Progress", color: "#633806", bg: "#FAEEDA" },
-        cancelled:    { label: "Cancelled",   color: "#A32D2D", bg: "#FCEBEB" },
-        pending:      { label: "Pending",     color: "#633806", bg: "#FAEEDA" },
+        cancelled: { label: "Cancelled", color: "#A32D2D", bg: "#FCEBEB" },
+        pending: { label: "Pending", color: "#633806", bg: "#FAEEDA" },
     }
 
     const safeBookings = Array.isArray(bookings) ? bookings : []
@@ -1125,7 +1124,7 @@ export default function ProviderProfile() {
                                 onChange={(e) => setEditForm((prev) => ({ ...prev, area: e.target.value }))}
                             >
                                 <option value="">Select your area</option>
-                                {AREAS.map(a => <option key={a}>{a}</option>)}
+                                {areas.map(a => <option key={a}>{a}</option>)}
                             </select>
                         </div>
 

@@ -69,4 +69,26 @@ router.get('/all-providers', async (req, res) => {
     }
 })
 
+router.patch('/edit/provider', verifyProviderToken, async (req, res) => {
+    try {
+        const provider = await Provider.findByIdAndUpdate(req.provider.id, {
+            $set: req.body
+        },
+            { returnDocument: 'after', runValidators: true }
+        )
+
+        return res.status(200).json({
+            success: true,
+            provider
+        })
+    }
+    catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: "Server error"
+        })
+    }
+})
+
 export default router;

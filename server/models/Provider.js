@@ -17,9 +17,11 @@ const providerSchema = new Schema({
   bio: { type: String },
   isApproved: { type: Boolean, default: false },
   bookings: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Booking",
-    default: null
+    type: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Booking"
+    }],
+    default: []
   }
 }, { timestamps: true })
 

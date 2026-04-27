@@ -1,51 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import { useParams, useSearchParams, useNavigate } from "react-router-dom"
 
-const MOCK_PROVIDERS = [
-    {
-        _id: "p1", name: "Ravi Kumar", avatar: "RK",
-        serviceType: "house-cleaning", area: "Banjara Hills",
-        pricePerHour: 400, rating: 4.9, totalJobs: 312,
-        memberSince: "2021-03-12", verified: true, topPro: true,
-        languages: ["Telugu", "Hindi"], responseTime: "~10 min",
-        completionRate: 98,
-    },
-    {
-        _id: "p2", name: "Sunita Devi", avatar: "SD",
-        serviceType: "house-cleaning", area: "Banjara Hills",
-        pricePerHour: 350, rating: 4.7, totalJobs: 189,
-        memberSince: "2022-07-04", verified: true, topPro: false,
-        languages: ["Telugu", "English"], responseTime: "~20 min",
-        completionRate: 95,
-    },
-    {
-        _id: "p3", name: "Mohammed Irfan", avatar: "MI",
-        serviceType: "house-cleaning", area: "Banjara Hills",
-        pricePerHour: 420, rating: 5.0, totalJobs: 78,
-        memberSince: "2023-01-19", verified: true, topPro: false,
-        languages: ["Urdu", "Hindi", "Telugu"], responseTime: "~5 min",
-        completionRate: 100,
-    },
-    {
-        _id: "p4", name: "Lakshmi Bai", avatar: "LB",
-        serviceType: "house-cleaning", area: "Banjara Hills",
-        pricePerHour: 380, rating: 4.6, totalJobs: 241,
-        memberSince: "2020-11-08", verified: true, topPro: true,
-        languages: ["Telugu"], responseTime: "~15 min",
-        completionRate: 96,
-    },
-    {
-        _id: "p5", name: "Arun Sharma", avatar: "AS",
-        serviceType: "house-cleaning", area: "Banjara Hills",
-        pricePerHour: 360, rating: 4.8, totalJobs: 155,
-        memberSince: "2022-04-22", verified: false, topPro: false,
-        languages: ["Hindi", "English"], responseTime: "~30 min",
-        completionRate: 93,
-    },
-]
-
-const PRICE_PER_HOUR = 400
-
 function memberSinceLabel(dateStr) {
     const d = new Date(dateStr)
     return d.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
@@ -126,7 +81,6 @@ export default function ServiceProviders() {
                 else {
                     console.log(res.error)
                     alert(res.error)
-
                 }
 
             }
