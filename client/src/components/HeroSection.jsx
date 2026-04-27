@@ -1,9 +1,10 @@
+import hero_img from '../assets/hero-img.png'
+
+
 export default function HeroSection() {
     return (
-        <div className="">
-            <h2 className="font-bold text-4xl flex justify-center items-center pt-9">
-                All services. One platform. Zero hassle.
-            </h2>
+        <div className="h-[21rem] w-full bg-black">
+            <img src={hero_img} className='w-full h-full opacity-45' />
         </div>
     )
 }
