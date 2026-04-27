@@ -38,7 +38,7 @@ const serviceIcons = {
 
 export default function ProviderProfile() {
     const { providerData, clearProviderData, updateProviderData } = useUser()
-    const { isProviderLoggedIn, verifyProviderLogin , isProviderLoaded } = useLogin()
+    const { isProviderLoggedIn, verifyProviderLogin, isProviderLoaded } = useLogin()
     const navigate = useNavigate()
 
     const [bookings, setBookings] = useState([])
@@ -72,7 +72,6 @@ export default function ProviderProfile() {
 
     useEffect(() => {
         if (isProviderLoggedIn) {
-
             if (providerData) {
                 setEditForm({
                     name: providerData.name || "",
@@ -85,22 +84,28 @@ export default function ProviderProfile() {
         }
     }, [providerData])
 
-    // useEffect(() => {
-    //     const fetchBookings = async () => {
-    //         try {
-    //             const res = await fetch(`${BackEndRoute}/api/bookings/provider`, {
-    //                 credentials: "include",
-    //             })
-    //             const data = await res.json()
-    //             if (data.success) setBookings(data.bookings || [])
-    //         } catch (err) {
-    //             console.log(err)
-    //         } finally {
-    //             setBookingsLoaded(true)
-    //         }
-    //     }
-    //     fetchBookings()
-    // }, [])
+    useEffect(() => {
+        const fetchBookings = async () => {
+            try {
+                const res = await fetch(`${BackEndRoute}/api/booking/all/provider`, {
+                    method: "GET",
+                    credentials: "include",
+                })
+                const data = await res.json()
+
+                if (data.success) {
+                    const raw = data.bookings
+                    setBookings(Array.isArray(raw) ? raw : [])
+                }
+            } catch (err) {
+                console.log(err)
+                setBookings([])
+            } finally {
+                setBookingsLoaded(true)
+            }
+        }
+        fetchBookings()
+    }, [])
 
     const handleLogout = async () => {
         await fetch(`${BackEndRoute}/api/logout/provider`, {
@@ -138,7 +143,6 @@ export default function ProviderProfile() {
 
     // ── Services edit handlers ──
     const openServicesEdit = () => {
-        // Pre-populate from current provider services
         const current = {}
         if (providerData?.services) {
             providerData.services.forEach(s => {
@@ -204,18 +208,21 @@ export default function ProviderProfile() {
     }
 
     const statusMeta = {
-        completed: { label: "Completed", color: "#3B6D11", bg: "#EAF3DE" },
-        upcoming: { label: "Upcoming", color: "#3C3489", bg: "#EEEDFE" },
-        "in-progress": { label: "In Progress", color: "#633806", bg: "#FAEEDA" },
-        cancelled: { label: "Cancelled", color: "#A32D2D", bg: "#FCEBEB" },
+        completed:    { label: "Completed",   color: "#3B6D11", bg: "#EAF3DE" },
+        accepted:     { label: "Accepted",    color: "#3C3489", bg: "#EEEDFE" },
+        "in_progress": { label: "In Progress", color: "#633806", bg: "#FAEEDA" },
+        cancelled:    { label: "Cancelled",   color: "#A32D2D", bg: "#FCEBEB" },
+        pending:      { label: "Pending",     color: "#633806", bg: "#FAEEDA" },
     }
 
-    const totalEarnings = bookings
-        .filter(b => b.status === "completed")
-        .reduce((sum, b) => sum + (b.price || 0), 0)
+    const safeBookings = Array.isArray(bookings) ? bookings : []
 
-    const completedCount = bookings.filter(b => b.status === "completed").length
-    const upcomingCount = bookings.filter(b => b.status === "upcoming").length
+    const totalEarnings = safeBookings
+        .filter(b => b.status === "completed")
+        .reduce((sum, b) => sum + (b.amount || 0), 0)
+
+    const completedCount = safeBookings.filter(b => b.status === "completed").length
+    const upcomingCount = safeBookings.filter(b => b.status === "accepted" || b.status === "in_progress").length
 
     return (
         <>
@@ -606,6 +613,9 @@ export default function ProviderProfile() {
                 .booking-customer {
                     font-size: 11px;
                     color: #777;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
                 }
 
                 .booking-right { text-align: right; flex-shrink: 0; }
@@ -622,6 +632,12 @@ export default function ProviderProfile() {
                 .booking-date {
                     font-size: 10px;
                     color: #888;
+                }
+
+                .booking-time {
+                    font-size: 10px;
+                    color: #999;
+                    margin-top: 2px;
                 }
 
                 .empty-state {
@@ -869,7 +885,7 @@ export default function ProviderProfile() {
                         </div>
                         <div className="pp-header-actions">
                             <button className="btn btn-outline" onClick={() => setEditOpen(true)}>Edit profile</button>
-                            <button className="btn btn-dark" onClick={() => navigate("/bookings/provider")}>View bookings</button>
+                            <button className="btn btn-dark" onClick={() => navigate("/bookings/requests")}>View Requests</button>
                             <button className="btn btn-danger" onClick={handleLogout}>Log out</button>
                         </div>
                     </div>
@@ -878,6 +894,7 @@ export default function ProviderProfile() {
                     <div className="stats-row">
                         <div className="stat-card">
                             <div className="stat-label">Total earned</div>
+                            {/* Fixed: totalEarnings is now a number computed from bookings */}
                             <div className="stat-value">₹{totalEarnings.toLocaleString("en-IN")}</div>
                             <div className="stat-sub">from completed jobs</div>
                         </div>
@@ -887,7 +904,8 @@ export default function ProviderProfile() {
                             <div className="stat-sub">bookings done</div>
                         </div>
                         <div className="stat-card">
-                            <div className="stat-label">Upcoming</div>
+                            {/* Fixed: label updated to "Accepted" to match actual status from API */}
+                            <div className="stat-label">Accepted</div>
                             <div className="stat-value">{upcomingCount}</div>
                             <div className="stat-sub">scheduled jobs</div>
                         </div>
@@ -1019,26 +1037,44 @@ export default function ProviderProfile() {
                             <div className="booking-list">
                                 {!bookingsLoaded ? (
                                     <div className="empty-state">Loading bookings...</div>
-                                ) : bookings.length === 0 ? (
+                                ) : safeBookings.length === 0 ? (
                                     <div className="empty-state">No bookings yet.</div>
                                 ) : (
-                                    bookings.slice(0, 5).map((b, i) => {
-                                        const status = statusMeta[b.status] || statusMeta.upcoming
+                                    safeBookings.slice(0, 5).map((b, i) => {
+                                        const status = statusMeta[b.status] || statusMeta.pending
+                                        // Fixed: use b.serviceType (not b.serviceName)
                                         const icon = serviceIcons[b.serviceType] || "🛠️"
                                         return (
                                             <div className="booking-card" key={i} onClick={() => navigate(`/bookings/${b._id}`)}>
                                                 <div className="booking-icon">{icon}</div>
                                                 <div className="booking-info">
-                                                    <div className="booking-name">{b.serviceName}</div>
-                                                    <div className="booking-customer">{b.customerName || "Customer"}</div>
+                                                    {/* Fixed: b.serviceType instead of b.serviceName */}
+                                                    <div className="booking-name">{b.serviceType}</div>
+                                                    {/* Fixed: show area + street from address object (no customerName in API response) */}
+                                                    <div className="booking-customer">
+                                                        {b.address?.area
+                                                            ? `${b.address.area}${b.address.street ? `, ${b.address.street}` : ""}`
+                                                            : "Address not set"}
+                                                    </div>
                                                 </div>
                                                 <div className="booking-right">
-                                                    <div className="booking-badge" style={{ background: status.bg, color: status.color }}>
+                                                    <div
+                                                        className="booking-badge"
+                                                        style={{ background: status.bg, color: status.color }}
+                                                    >
                                                         {status.label}
                                                     </div>
                                                     <div className="booking-date">
-                                                        {new Date(b.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                                                        {new Date(b.date).toLocaleDateString("en-IN", {
+                                                            day: "numeric", month: "short", year: "numeric"
+                                                        })}
                                                     </div>
+                                                    {/* Fixed: show time slot from startTimeSlot / endTimeSlot */}
+                                                    {b.startTimeSlot && b.endTimeSlot && (
+                                                        <div className="booking-time">
+                                                            {b.startTimeSlot} – {b.endTimeSlot}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         )

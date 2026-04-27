@@ -12,6 +12,7 @@ import HosueCleaningPage from "../pages/Services/HouseCleaningPage.jsx"
 import UserProfilePage from '../pages/UserProfilePage.jsx'
 import ProviderProfilePage from '../pages/ProviderProfilePage.jsx'
 import ServiceProvidersPage from '../pages/ServiceProvidersPage.jsx'
+import RequestsPage from "../pages/RequestsPage.jsx"
 
 export default function AppRoutes() {
     return (
@@ -45,6 +46,8 @@ export default function AppRoutes() {
             <Route path="/profile/user" element={<UserProfilePage />} />
 
             <Route path="/profile/provider" element={<ProviderProfilePage />} />
+            
+            <Route path="/bookings/requests" element={<RequestsPage />} />
         </Routes>
     )
 }

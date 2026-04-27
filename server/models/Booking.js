@@ -49,7 +49,7 @@ const bookingSchema = new Schema({
     },
     status: {
         type: String,
-        enum: ['draft', 'pending', 'accepted', 'in_progress', 'completed', 'cancelled'],
+        enum: ['draft', 'pending', 'declined', 'accepted', 'in_progress', 'completed', 'cancelled'],
         default: 'draft'
     },
     expiresAt: {

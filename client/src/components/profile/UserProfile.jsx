@@ -41,31 +41,34 @@ export default function UserProfile() {
                 phone: userData.phone || "",
                 email: userData.email || "",
                 address: {
-                    area: userData.address.area || '',
-                    street: userData.address.street || '',
-                    landmark: userData.address.landmark || '',
+                    area: userData.address?.area || '',
+                    street: userData.address?.street || '',
+                    landmark: userData.address?.landmark || '',
                 },
                 pincode: userData.pincode || "",
             })
         }
     }, [userData])
 
-    // useEffect(() => {
-    //     const fetchBookings = async () => {
-    //         try {
-    //             const res = await fetch(`${BackEndRoute}/api/bookings/user`, {
-    //                 credentials: "include",
-    //             })
-    //             const data = await res.json()
-    //             if (data.success) setBookings(data.bookings || [])
-    //         } catch (err) {
-    //             console.log(err)
-    //         } finally {
-    //             setBookingsLoaded(true)
-    //         }
-    //     }
-    //     fetchBookings()
-    // }, [])
+    useEffect(() => {
+        const fetchBookings = async () => {
+            try {
+                const res = await fetch(`${BackEndRoute}/api/booking/all/user`, {
+                    credentials: "include",
+                })
+                const data = await res.json()
+                if (data.success) {
+                    const raw = data.bookings.slice(0, 3)
+                    setBookings(Array.isArray(raw) ? raw : [])
+                }
+            } catch (err) {
+                console.log(err)
+            } finally {
+                setBookingsLoaded(true)
+            }
+        }
+        fetchBookings()
+    }, [])
 
     const handleLogout = async () => {
         await fetch(`${BackEndRoute}/api/logout/user`, {
@@ -101,21 +104,33 @@ export default function UserProfile() {
         }
     }
 
+    // ── Matches actual schema enum values ──
     const statusMeta = {
+        pending: { label: "Pending", color: "#633806", bg: "#FAEEDA" },
+        accepted: { label: "Accepted", color: "#3C3489", bg: "#EEEDFE" },
+        in_progress: { label: "In Progress", color: "#633806", bg: "#FAEEDA" },
         completed: { label: "Completed", color: "#3B6D11", bg: "#EAF3DE" },
-        upcoming: { label: "Upcoming", color: "#3C3489", bg: "#EEEDFE" },
-        "in-progress": { label: "In Progress", color: "#633806", bg: "#FAEEDA" },
         cancelled: { label: "Cancelled", color: "#A32D2D", bg: "#FCEBEB" },
+        declined: { label: "Declined", color: "#A32D2D", bg: "#FCEBEB" },
     }
 
+    // ── Matches actual serviceType strings from schema ──
     const serviceIcons = {
-        cleaning: "🧹",
-        plumbing: "🔧",
-        electrical: "⚡",
-        painting: "🎨",
-        carpentry: "🪚",
-        appliance: "🔌",
+        'Plumbing': '🔧',
+        'Electrical work': '⚡',
+        'House cleaning': '🧹',
+        'Carpentry & furniture repair': '🪚',
+        'Painting & wall finishing': '🎨',
+        'Appliance repair': '🔌',
+        'Tutoring & coaching': '📚',
+        'Personal fitness training': '🏋️',
+        'Pest control': '🐛',
+        'Gardening & landscaping': '🌿',
+        'Laundry & ironing': '👕',
+        'Beauty & grooming': '💇',
     }
+
+    const safeBookings = Array.isArray(bookings) ? bookings : []
 
     return (
         <>
@@ -129,7 +144,6 @@ export default function UserProfile() {
                     background: white;
                     font-family: 'DM Sans', sans-serif;
                     padding: 2rem 1rem 4rem;
-                    // border : 2px solid black;
                 }
 
                 .pf-container {
@@ -234,7 +248,6 @@ export default function UserProfile() {
                     font-weight: 500;
                     letter-spacing: 0.1em;
                     text-transform: uppercase;
-                    // color: #777;
                     margin-bottom: 10px;
                 }
 
@@ -361,9 +374,12 @@ export default function UserProfile() {
                     margin-bottom: 2px;
                 }
 
-                .booking-provider {
+                .booking-sub {
                     font-size: 11px;
                     color: #aaa;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
                 }
 
                 .booking-right { text-align: right; flex-shrink: 0; }
@@ -380,6 +396,12 @@ export default function UserProfile() {
                 .booking-date {
                     font-size: 10px;
                     color: #888;
+                }
+
+                .booking-time {
+                    font-size: 10px;
+                    color: #999;
+                    margin-top: 2px;
                 }
 
                 .empty-bookings {
@@ -441,7 +463,7 @@ export default function UserProfile() {
                 }
 
                 .modal-box {
-                    background: #f0f0f0; 
+                    background: #f0f0f0;
                     border-radius: 16px;
                     padding: 1.75rem;
                     width: 100%;
@@ -465,7 +487,7 @@ export default function UserProfile() {
                     font-weight: 500;
                     text-transform: uppercase;
                     letter-spacing: 0.07em;
-                    color: #777; 
+                    color: #777;
                     margin-bottom: 5px;
                     display: block;
                 }
@@ -553,7 +575,6 @@ export default function UserProfile() {
                                 {userData?.email || "Not set"}
                             </div>
                         </div>
-
                     </div>
 
                     <div className="address-card">
@@ -565,20 +586,23 @@ export default function UserProfile() {
                         </div>
                         <div>
                             <div className="info-card-label" style={{ marginBottom: 4 }}>Saved address</div>
-                            {userData?.address && (
+                            {userData?.address ? (
                                 <>
-                                    <div className={`info-card-value ${!userData?.address ? "empty" : ""}`} style={{ fontSize: 13, lineHeight: 1.5 }}>
-                                        {userData?.address.area || "No address saved"}
+                                    <div className="info-card-value" style={{ fontSize: 13, lineHeight: 1.5 }}>
+                                        {userData.address.area || "No area saved"}
                                     </div>
-                                    <div className={`info-card-value ${!userData?.address ? "empty" : ""}`} style={{ fontSize: 13, lineHeight: 1.5 }}>
-                                        {userData?.address.street || "No street saved"}
+                                    <div className="info-card-value" style={{ fontSize: 13, lineHeight: 1.5 }}>
+                                        {userData.address.street || "No street saved"}
                                     </div>
-                                    <div className={`info-card-value ${!userData?.address ? "empty" : ""}`} style={{ fontSize: 13, lineHeight: 1.5 }}>
-                                        {userData?.address.landmark || "No landmark saved"}
-                                    </div>
+                                    {userData.address.landmark && (
+                                        <div className="info-card-value" style={{ fontSize: 13, lineHeight: 1.5, color: "#888" }}>
+                                            Near {userData.address.landmark}
+                                        </div>
+                                    )}
                                 </>
+                            ) : (
+                                <div className="info-card-value empty">No address saved</div>
                             )}
-
                         </div>
                     </div>
 
@@ -593,25 +617,36 @@ export default function UserProfile() {
                     <div className="booking-list">
                         {!bookingsLoaded ? (
                             <div className="empty-bookings">Loading bookings...</div>
-                        ) : bookings.length === 0 ? (
+                        ) : safeBookings.length === 0 ? (
                             <div className="empty-bookings">No bookings yet — book your first service!</div>
                         ) : (
-                            bookings.slice(0, 3).map((b, i) => {
-                                const status = statusMeta[b.status] || statusMeta.upcoming
+                            safeBookings.slice(0, 3).map((b, i) => {
+                                const status = statusMeta[b.status] || statusMeta.pending
+                                // Fixed: use b.serviceType (matches schema field name)
                                 const icon = serviceIcons[b.serviceType] || "🛠️"
                                 return (
                                     <div className="booking-card" key={i} onClick={() => navigate(`/bookings/${b._id}`)}>
                                         <div className="booking-icon">{icon}</div>
                                         <div className="booking-info">
-                                            <div className="booking-name">{b.serviceName}</div>
-                                            <div className="booking-provider">{b.providerName || "Provider"}</div>
+                                            <div className="booking-name">{b.serviceType}</div>
+                                            <div className="booking-sub">
+                                                {b.address?.area || "Address not set"}
+
+                                            </div>
+                                            <div className="booking-sub">{b.startTimeSlot ? `${b.startTimeSlot} - ${b.endTimeSlot}` : ""}</div>
+                                            <div className="booking-sub">{b.duration ? `${b.duration / 60} hours` : ""}</div>
                                         </div>
                                         <div className="booking-right">
-                                            <div className="booking-badge" style={{ background: status.bg, color: status.color }}>
+                                            <div
+                                                className="booking-badge"
+                                                style={{ background: status.bg, color: status.color }}
+                                            >
                                                 {status.label}
                                             </div>
                                             <div className="booking-date">
-                                                {new Date(b.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                                                {new Date(b.date).toLocaleDateString("en-IN", {
+                                                    day: "numeric", month: "short", year: "numeric"
+                                                })}
                                             </div>
                                         </div>
                                     </div>
@@ -660,14 +695,31 @@ export default function UserProfile() {
                     <div className="modal-box">
                         <div className="modal-title">Edit profile</div>
 
-                        {["name", "phone", "email", "area", "street" , "landmark"].map((field) => (
+                        {["name", "phone", "email"].map((field) => (
                             <div className="field-group" key={field}>
                                 <label className="field-label">{field.charAt(0).toUpperCase() + field.slice(1)}</label>
                                 <input
                                     className="field-input"
                                     type={field === "email" ? "email" : "text"}
-                                    value={['area', 'street', 'landmark'].includes(field) ? editForm.address?.[field] || "" : editForm[field] || ""}
+                                    value={editForm[field] || ""}
                                     onChange={(e) => setEditForm((prev) => ({ ...prev, [field]: e.target.value }))}
+                                    placeholder={`Enter your ${field}`}
+                                />
+                            </div>
+                        ))}
+
+                        {/* Fixed: address fields update nested editForm.address correctly */}
+                        {["area", "street", "landmark"].map((field) => (
+                            <div className="field-group" key={field}>
+                                <label className="field-label">{field.charAt(0).toUpperCase() + field.slice(1)}</label>
+                                <input
+                                    className="field-input"
+                                    type="text"
+                                    value={editForm.address?.[field] || ""}
+                                    onChange={(e) => setEditForm((prev) => ({
+                                        ...prev,
+                                        address: { ...prev.address, [field]: e.target.value }
+                                    }))}
                                     placeholder={`Enter your ${field}`}
                                 />
                             </div>
