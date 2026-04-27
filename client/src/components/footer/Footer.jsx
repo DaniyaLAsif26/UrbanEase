@@ -42,7 +42,7 @@ const links = [
                 name: "Become a Provider", link: ''
             },
             {
-                name: "Admin", link: '/admin/login'
+                name: "Admin", link: '/login/admin'
             },
         ]
     },

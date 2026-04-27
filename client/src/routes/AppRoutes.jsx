@@ -15,6 +15,8 @@ import ProviderProfilePage from '../pages/ProviderProfilePage.jsx'
 import ServiceProvidersPage from '../pages/ServiceProvidersPage.jsx'
 import RequestsPage from "../pages/RequestsPage.jsx"
 
+import AdminLoginPage from "../pages/AdminLognPage.jsx"
+
 export default function AppRoutes() {
     return (
 
@@ -50,6 +52,10 @@ export default function AppRoutes() {
             <Route path="/profile/provider" element={<ProviderProfilePage />} />
             
             <Route path="/bookings/requests" element={<RequestsPage />} />
+
+            <Route path="/login/admin" element={<AdminLoginPage />} />
+
+
         </Routes>
     )
 }
