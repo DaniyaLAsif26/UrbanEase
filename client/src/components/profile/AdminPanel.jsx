@@ -3,10 +3,15 @@ import { useState, useEffect } from "react"
 const BackEndRoute = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000"
 
 export default function AdminPanel() {
-  const [activeTab, setActiveTab] = useState("providers")
+  const [activeTab, setActiveTab] = useState(() => sessionStorage.getItem('tab') || 'providers')
+
+  useEffect(() => {
+    sessionStorage.setItem('tab', activeTab)
+  }, [activeTab])
 
   const [users, setUsers] = useState([])
   const [providers, setProviders] = useState([])
+  const [bookings, setBookings] = useState([])
 
   const allUser = async () => {
     const res = await fetch(`${BackEndRoute}/api/admin/all-users`, {
@@ -20,6 +25,7 @@ export default function AdminPanel() {
       setUsers(data.allUsers)
     }
   }
+
   const allProviders = async () => {
     const res = await fetch(`${BackEndRoute}/api/admin/all-providers`, {
       method: "GET",
@@ -33,9 +39,23 @@ export default function AdminPanel() {
     }
   }
 
+  const allBookings = async () => {
+    const res = await fetch(`${BackEndRoute}/api/admin/all-bookings`, {
+      method: "GET",
+      credentials: "include",
+    })
+
+    const data = await res.json()
+
+    if (data.success) {
+      setBookings(data.allBookings)
+    }
+  }
+
   useEffect(() => {
     allUser()
     allProviders()
+    allBookings()
   }, [])
 
   return (
@@ -79,7 +99,7 @@ export default function AdminPanel() {
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    {["Name", "Service", "Status", "Actions"].map((h) => (
+                    {["Name", "Service", "Area", "Boohings", "Status", "Actions"].map((h) => (
                       <th key={h} className="text-left px-6 py-3 text-xs text-gray-400 font-medium" style={{ fontFamily: "'DM Mono', monospace" }}>{h}</th>
                     ))}
                   </tr>
@@ -92,6 +112,12 @@ export default function AdminPanel() {
                         {i.services.map((c) =>
                           <span className=" text-gray-500">{c.category}, </span>
                         )}
+                      </td>
+                      <td className="px-6 py-4 text-gray-800">
+                        {i.area}
+                      </td>
+                      <td className="px-6 py-4 text-gray-800">
+                        {i.bookings.length}
                       </td>
 
                       <td className="px-6 py-4"><span className="bg-yellow-50 text-yellow-700 text-xs px-2 py-1 rounded-sm" style={{ fontFamily: "'DM Mono', monospace" }}>{i.isApproved ? 'Verified' : 'Not Verified'}</span></td>
@@ -112,7 +138,7 @@ export default function AdminPanel() {
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    {["Name", "Email", "Joined", "Actions"].map((h) => (
+                    {["Name", "Email", "Area", "Joined", "Actions"].map((h) => (
                       <th key={h} className="text-left px-6 py-3 text-xs text-gray-400 font-medium" style={{ fontFamily: "'DM Mono', monospace" }}>{h}</th>
                     ))}
                   </tr>
@@ -122,6 +148,7 @@ export default function AdminPanel() {
                     <tr key={u._id} className="hover:bg-gray-50 transition">
                       <td className="px-6 py-4 text-gray-800">{u.name}</td>
                       <td className="px-6 py-4 text-gray-500">{u.email}</td>
+                      <td className="px-6 py-4 text-gray-500">{u.address?.area}</td>
                       <td className="px-6 py-4 text-xs text-gray-400" style={{ fontFamily: "'DM Mono', monospace" }}>{new Date(u.createdAt).toLocaleDateString()}</td>
                       <td className="px-6 py-4"><button className="text-xs text-red-400 hover:text-red-600" style={{ fontFamily: "'DM Mono', monospace" }}>Remove</button></td>
                     </tr>
@@ -146,18 +173,20 @@ export default function AdminPanel() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  <tr className="hover:bg-gray-50 transition">
-                    <td className="px-6 py-4 text-gray-800">Ahmed Raza</td>
-                    <td className="px-6 py-4 text-gray-500">Ali Hassan</td>
-                    <td className="px-6 py-4 text-gray-500">Plumbing</td>
-                    <td className="px-6 py-4"><span className="bg-blue-50 text-blue-700 text-xs px-2 py-1 rounded-sm" style={{ fontFamily: "'DM Mono', monospace" }}>Confirmed</span></td>
-                  </tr>
-                  <tr className="hover:bg-gray-50 transition">
-                    <td className="px-6 py-4 text-gray-800">Fatima Malik</td>
-                    <td className="px-6 py-4 text-gray-500">Sara Khan</td>
-                    <td className="px-6 py-4 text-gray-500">Cleaning</td>
-                    <td className="px-6 py-4"><span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-sm" style={{ fontFamily: "'DM Mono', monospace" }}>Pending</span></td>
-                  </tr>
+                  {bookings.map((b) =>
+                    <tr key={b._id} className="hover:bg-gray-50 transition">
+                      <td className="px-6 py-4 text-gray-800">{b.userId.name}</td>
+                      <td className="px-6 py-4 text-gray-500 flex flex-col justify-center ">
+                        {b.providers?.map((i) =>
+                          <span className="" key={i._id}>{i.name}</span>
+                        )}
+
+                      </td>
+                      <td className="px-6 py-4 text-gray-500">{b.serviceType}</td>
+                      <td className="px-6 py-4"><span className={`bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-sm ${b.status === 'accepted' && 'bg-green-400'} ${b.status === 'pending' && 'bg-orange-300'} ${b.status === 'declined' && 'bg-red-300'}`}
+                        style={{ fontFamily: "'DM Mono', monospace" }}>{b.status}</span></td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>

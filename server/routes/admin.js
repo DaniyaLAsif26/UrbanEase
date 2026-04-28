@@ -44,5 +44,24 @@ router.get('/all-providers', async (req, res) => {
     }
 })
 
+router.get('/all-bookings', async (req, res) => {
+    try {
+        const allBookings = await Booking.find().populate('userId').populate('providers')
+
+        return res.status(200).json({
+            success: true,
+            allBookings
+        }
+        )
+    }
+    catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: "server Error"
+        })
+    }
+})
+
 
 export default router;
