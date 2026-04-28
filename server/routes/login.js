@@ -118,7 +118,6 @@ router.post('/user', async (req, res) => {
 router.post('/admin', async (req, res) => {
     try {
         const { name, pass } = req.body
-        console.log(name, pass)
 
         const admin = await Admin.findOne({ username: name })
 

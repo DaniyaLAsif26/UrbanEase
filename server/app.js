@@ -10,6 +10,7 @@ import signUpRoute from "./routes/signup.js"
 import loginRoute from "./routes/login.js"
 import userRoutes from './routes/user.js'
 import BookingRoute from './routes/bookings.js'
+import AdminRoute from './routes/admin.js'
 
 const app = express()
 app.use(express.json())
@@ -55,6 +56,7 @@ app.use('/api/signup', signUpRoute)
 app.use('/api/login', loginRoute)
 app.use('/api/profile', userRoutes)
 app.use('/api/booking', BookingRoute)
+app.use('/api/admin', AdminRoute)
 
 app.listen(PORT, HOST, () => {
     console.log(`Server running on port ${PORT}`)
