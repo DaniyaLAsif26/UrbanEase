@@ -12,13 +12,40 @@ import loginRoute from "./routes/login.js"
 import userRoutes from './routes/user.js'
 import BookingRoute from './routes/bookings.js'
 
-const app = express()
-app.use(express.json())
+const allowedOrigins = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:3000",
+    'https://urban-ease-steel.vercel.app',
+    'https://urban-ease-daniyal-asifs-projects-2b05fd7a.vercel.app',
+];
+
+app.use((req, res, next) => {
+    res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+    next();
+});
+
 
 app.use(cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: function (origin, callback) {
+
+        if (!origin) return callback(null, !isProduction);
+        if (allowedOrigins.indexOf(origin) === -1) {
+            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+            return callback(new Error(msg), false);
+        }
+        else {
+            return callback(null, true);
+        }
+    },
     credentials: true,
-}))
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+}));
+
+
+const app = express()
+app.use(express.json())
 
 app.use(cookieParser())
 
