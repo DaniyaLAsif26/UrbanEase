@@ -2,6 +2,20 @@ import { useState, useEffect } from "react"
 
 const BackEndRoute = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000"
 
+import { areas, services } from '../../data/services.js'
+
+function SearchInput({ search, setSearch, func }) {
+  return (
+    <div className="flex justify-center items-center mb-7">
+      <input type="text" placeholder="Search" className="px-3 py-2 border-black border-[1.5px] rounded-lg" value={search} onChange={(e) => {
+        const value = e.target.value
+        setSearch(value)
+        func(value)
+      }} />
+    </div>
+  )
+}
+
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState(() => sessionStorage.getItem('tab') || 'providers')
 
@@ -10,8 +24,29 @@ export default function AdminPanel() {
   }, [activeTab])
 
   const [users, setUsers] = useState([])
+
   const [providers, setProviders] = useState([])
+  const [filteredProviders, setFilteredProviders] = useState([])
+  const [filteredUsers, setFilteredUsers] = useState([])
+  const [filteredBookings, setFilteredBookings] = useState([])
+  const [filters, setFilters] = useState({ area: '', services: '' })
+  const [bookingFilters, setBookingFilters] = useState({ area: '', services: '', status: '' })
+
   const [bookings, setBookings] = useState([])
+
+  const [search, setSearch] = useState('')
+
+  const getAllUsers = async (searchQuery = '') => {
+    console.log(searchQuery)
+  }
+
+  const getAllProviders = async (searchQuery = '') => {
+    console.log(searchQuery)
+  }
+
+  const getAllBookings = async (searchQuery = '') => {
+    console.log(searchQuery)
+  }
 
   const allUser = async () => {
     const res = await fetch(`${BackEndRoute}/api/admin/all-users`, {
@@ -23,6 +58,7 @@ export default function AdminPanel() {
 
     if (data.success) {
       setUsers(data.allUsers)
+      setFilteredUsers(data.allUsers)
     }
   }
 
@@ -36,6 +72,7 @@ export default function AdminPanel() {
 
     if (data.success) {
       setProviders(data.allProviders)
+      setFilteredProviders(data.allProviders)
     }
   }
 
@@ -49,6 +86,7 @@ export default function AdminPanel() {
 
     if (data.success) {
       setBookings(data.allBookings)
+      setFilteredBookings(data.allBookings)
     }
   }
 
@@ -57,6 +95,45 @@ export default function AdminPanel() {
     allProviders()
     allBookings()
   }, [])
+
+  const sortProviders = (name, value) => {
+    const updated = { ...filters, [name]: value }
+    setFilters(updated)
+
+    const filtered = providers.filter(i => {
+      const areaMatch = !updated.area || i.area === updated.area
+      const serviceMatch = !updated.services || i.services.some(s => s.category === updated.services)
+      return areaMatch && serviceMatch
+    })
+
+    setFilteredProviders(filtered)
+  }
+
+  const sortBookings = (name, value) => {
+    const updated = { ...bookingFilters, [name]: value }
+    setBookingFilters(updated)
+
+    const filtered = bookings.filter(i => {
+      const areaMatch = !updated.area || i.address.area === updated.area
+      const serviceMatch = !updated.services || i.serviceType === updated.services
+      const statusMatch = !updated.status || i.status === updated.status
+      return areaMatch && serviceMatch && statusMatch
+    })
+
+    setFilteredBookings(filtered)
+  }
+
+  const sortUsers = (value) => {
+
+    if (!value) {
+      setFilteredUsers(users)
+      return
+    }
+
+    const filterUser = users.filter(i => i.address.area === value)
+
+    setFilteredUsers(filterUser)
+  }
 
   return (
     <div className="bg-[#f5f4f0] min-h-screen" style={{ fontFamily: "'DM Sans', sans-serif" }}>
@@ -94,8 +171,32 @@ export default function AdminPanel() {
         {/* Providers */}
         {activeTab === "providers" && (
           <div>
-            <p className="text-xs text-gray-400 mb-6 uppercase tracking-widest" style={{ fontFamily: "'DM Mono', monospace" }}>Providers</p>
+            <p className="text-[1.5rem] text-gray-600 mb-3 uppercase tracking-widest" style={{ fontFamily: "'DM Mono', monospace" }}>Providers</p>
+            <SearchInput search={search} setSearch={setSearch} func={getAllUsers} />
             <div className="bg-white border border-gray-200 rounded-sm overflow-hidden">
+              <div className="flex flex-row gap-7 justify-end py-5 px-3">
+                Sort By
+                <div className="relative">
+                  <select className='border-gray-800 border-[1.5px]'
+                    onChange={(e) => sortProviders('area', e.target.value)}
+                  >
+                    <option value="">Area</option>
+                    {areas.map(a => <option key={a} value={a}>{a}</option>)}
+                  </select>
+                </div>
+                <div className="relative">
+                  <select className='border-gray-800 border-[1.5px]'
+                    onChange={(e) => sortProviders('services', e.target.value)}
+                  >
+                    <option value="">Services</option>
+                    {services.map(a =>
+                      a.options.map((s) =>
+                        <option key={s.name} value={s.name}>{s.name}</option>
+                      )
+                    )}
+                  </select>
+                </div>
+              </div>
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
@@ -105,7 +206,7 @@ export default function AdminPanel() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {providers?.map((i) =>
+                  {filteredProviders?.map((i) =>
                     <tr className="hover:bg-gray-50 transition">
                       <td className="px-6 py-4 text-gray-800">{i.name}</td>
                       <td className="px-6 py-4 text-gray-800 flex flex-col justify-center gap-3">
@@ -133,8 +234,20 @@ export default function AdminPanel() {
         {/* Users */}
         {activeTab === "users" && (
           <div>
-            <p className="text-xs text-gray-400 mb-6 uppercase tracking-widest" style={{ fontFamily: "'DM Mono', monospace" }}>Users</p>
+            <p className="text-[1.5rem] text-gray-600 mb-6 uppercase tracking-widest" style={{ fontFamily: "'DM Mono', monospace" }}>Users</p>
+            <SearchInput search={search} setSearch={setSearch} func={getAllProviders} />
             <div className="bg-white border border-gray-200 rounded-sm overflow-hidden">
+              <div className="flex flex-row gap-7 justify-end py-5 px-3">
+                Sort By
+                <div className="relative">
+                  <select className='border-gray-800 border-[1.5px]'
+                    onChange={(e) => sortUsers(e.target.value)}
+                  >
+                    <option value="">Area</option>
+                    {areas.map(a => <option key={a} value={a}>{a}</option>)}
+                  </select>
+                </div>
+              </div>
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
@@ -144,7 +257,7 @@ export default function AdminPanel() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {users.map((u) => (
+                  {filteredUsers.map((u) => (
                     <tr key={u._id} className="hover:bg-gray-50 transition">
                       <td className="px-6 py-4 text-gray-800">{u.name}</td>
                       <td className="px-6 py-4 text-gray-500">{u.email}</td>
@@ -162,8 +275,42 @@ export default function AdminPanel() {
         {/* Bookings */}
         {activeTab === "bookings" && (
           <div>
-            <p className="text-xs text-gray-400 mb-6 uppercase tracking-widest" style={{ fontFamily: "'DM Mono', monospace" }}>Bookings</p>
+            <p className="text-[1.5rem] text-gray-600 mb-6 uppercase tracking-widest" style={{ fontFamily: "'DM Mono', monospace" }}>Bookings</p>
+            <SearchInput search={search} setSearch={setSearch} func={getAllBookings} />
             <div className="bg-white border border-gray-200 rounded-sm overflow-hidden">
+              <div className="flex flex-row gap-7 justify-end py-5 px-3">
+                Sort By
+                <div className="relative">
+                  <select className='border-gray-800 border-[1.5px]'
+                    onChange={(e) => sortBookings('area', e.target.value)}
+                  >
+                    <option value="">Area</option>
+                    {areas.map(a => <option key={a} value={a}>{a}</option>)}
+                  </select>
+                </div>
+                <div className="relative">
+                  <select className='border-gray-800 border-[1.5px]'
+                    onChange={(e) => sortBookings('services', e.target.value)}
+                  >
+                    <option value="">Services</option>
+                    {services.map(a =>
+                      a.options.map((s) =>
+                        <option key={s.name} value={s.name}>{s.name}</option>
+                      )
+                    )}
+                  </select>
+                </div>
+                <div className="relative">
+                  <select className='border-gray-800 border-[1.5px]'
+                    onChange={(e) => sortBookings('status', e.target.value)}
+                  >
+                    <option value="">Services</option>
+                    {["pending", "declined", "cancelled", "accepted", "completed"].map(s =>
+                      <option key={s} value={s}>{s}</option>
+                    )}
+                  </select>
+                </div>
+              </div>
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
@@ -173,9 +320,9 @@ export default function AdminPanel() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {bookings.map((b) =>
+                  {filteredBookings.map((b) =>
                     <tr key={b._id} className="hover:bg-gray-50 transition">
-                      <td className="px-6 py-4 text-gray-800">{b.userId.name}</td>
+                      <td className="px-6 py-4 text-gray-800">{b.userId?.name}</td>
                       <td className="px-6 py-4 text-gray-500 flex flex-col justify-center ">
                         {b.providers?.map((i) =>
                           <span className="" key={i._id}>{i.name}</span>

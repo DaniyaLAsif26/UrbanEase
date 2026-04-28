@@ -1,8 +1,8 @@
 export const services = [
     {
         head: 'Cleaning & Household', options: [
-            { name: 'House Cleaning', link: '/services/house-cleaning', img: 'https://cache-landingpages.services.handy.com/assets/pages/services/homecleaner_image-fedc37eea62743f6da98a145bfc573e8e827c5e68ff13b935857c43fb7d97f37.png' },
-            { name: 'Laundry & Ironing', link: '/services/laundry-ironing', img: 'https://thelaundryhub.ae/wp-content/uploads/2025/12/Laundry-and-ironing-Service.webp' },
+            { name: 'House cleaning', link: '/services/house-cleaning', img: 'https://cache-landingpages.services.handy.com/assets/pages/services/homecleaner_image-fedc37eea62743f6da98a145bfc573e8e827c5e68ff13b935857c43fb7d97f37.png' },
+            { name: 'Laundry & ironing', link: '/services/laundry-ironing', img: 'https://thelaundryhub.ae/wp-content/uploads/2025/12/Laundry-and-ironing-Service.webp' },
             { name: 'Pest Control', link: '/services/pest-control', img: 'https://unicareservices.in/wp-content/uploads/2024/09/sep-2024-blog-2_page-0001-1080x675.jpg' },
             { name: 'Gardening & Outdoor Cleaning', link: '/services/gardening-outdoor-cleaning', img: 'https://content.jdmagicbox.com/v2/comp/hyderabad/y8/040pxx40.xx40.250423131902.w6y8/catalogue/green-land-landscaping-and-gardening-services-ameerpet-hyderabad-plant-nurseries-bjrob1uxvo.jpg' },
         ]
