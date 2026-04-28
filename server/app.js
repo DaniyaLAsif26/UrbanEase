@@ -8,6 +8,7 @@ import cookieParser from "cookie-parser"
 
 import signUpRoute from "./routes/signup.js"
 import loginRoute from "./routes/login.js"
+import logoutRoute from "./routes/logout.js"
 import userRoutes from './routes/user.js'
 import BookingRoute from './routes/bookings.js'
 import AdminRoute from './routes/admin.js'
@@ -54,6 +55,7 @@ mongoose.connect(MONGO_URL)
 
 app.use('/api/signup', signUpRoute)
 app.use('/api/login', loginRoute)
+app.use('/api/logout', logoutRoute)
 app.use('/api/profile', userRoutes)
 app.use('/api/booking', BookingRoute)
 app.use('/api/admin', AdminRoute)

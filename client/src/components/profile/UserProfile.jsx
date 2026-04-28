@@ -9,7 +9,7 @@ const BackEndRoute = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000"
 
 export default function UserProfile() {
     const { userData, clearUserData, updateUserData } = useUser()
-    const { isUserLoggedIn, isUserLoaded, verifyUserLogin } = useLogin()
+    const { isUserLoggedIn, isUserLoaded, verifyUserLogin, logoutUser } = useLogin()
     const navigate = useNavigate()
 
     const [bookings, setBookings] = useState([])
@@ -71,13 +71,8 @@ export default function UserProfile() {
     }, [])
 
     const handleLogout = async () => {
-        await fetch(`${BackEndRoute}/api/logout/user`, {
-            method: "POST",
-            credentials: "include",
-        })
-        clearUserData()
-        verifyUserLogin()
-        navigate("/")
+        await logoutUser()
+        window.location.href = '/'
     }
 
     const handleEditSave = async () => {

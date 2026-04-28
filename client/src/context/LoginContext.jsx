@@ -93,6 +93,63 @@ export const LoginProvider = ({ children }) => {
         verifyAdminLogin()
     }, [])
 
+    const logoutAdmin = async () => {
+        try {
+            const res = await fetch(`${BackEndRoute}/api/logout/admin`, {
+                method: 'DELETE',
+                credentials: "include"
+            })
+
+            const dataRes = await res.json()
+
+            if (dataRes.success === true) {
+                setIsAdminLoggedIn(false)
+            }
+        }
+        catch (err) {
+            console.log(err)
+        }
+    }
+
+    const logoutUser = async () => {
+        try {
+            const res = await fetch(`${BackEndRoute}/api/logout/user`, {
+                method: "DELETE",
+                credentials: 'include'
+            })
+
+            const dataRes = await res.json()
+
+            setIsUserLoggedIn(false)
+            fetchUserData()
+            return;
+        }
+        catch (err) {
+            console.log("hello")
+            console.log(err)
+            alert("Error", err.message)
+        }
+    }
+
+    const logoutProvider = async () => {
+        try {
+            const res = await fetch(`${BackEndRoute}/api/logout/provider`, {
+                method: "DELETE",
+                credentials: 'include'
+            })
+
+            const dataRes = await res.json()
+
+            setIsUserLoggedIn(false)
+            fetchProviderData()
+            return;
+        }
+        catch (err) {
+            console.log(err)
+            alert("Error", err.message)
+        }
+    }
+
     return (
         <LoginContext.Provider value={
             {
@@ -106,7 +163,11 @@ export const LoginProvider = ({ children }) => {
 
                 isAdminLoaded,
                 isAdminLoggedIn,
-                verifyAdminLogin
+                verifyAdminLogin,
+
+                logoutAdmin,
+                logoutUser,
+                logoutProvider
             }
         }
         >

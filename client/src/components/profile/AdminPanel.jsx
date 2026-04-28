@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom";
 
 const BackEndRoute = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000"
 
 import { areas, services } from '../../data/services.js'
+
+import { useLogin } from '../../context/LoginContext';
 
 function SearchInput({ search, setSearch, func }) {
   return (
@@ -17,6 +20,11 @@ function SearchInput({ search, setSearch, func }) {
 }
 
 export default function AdminPanel() {
+
+  const navigate = useNavigate()
+
+  const { logoutAdmin } = useLogin()
+
   const [activeTab, setActiveTab] = useState(() => sessionStorage.getItem('tab') || 'providers')
 
   useEffect(() => {
@@ -135,6 +143,11 @@ export default function AdminPanel() {
     setFilteredUsers(filterUser)
   }
 
+  const adminLogout = async () => {
+    await logoutAdmin()
+    window.location.href = '/'
+  }
+
   return (
     <div className="bg-[#f5f4f0] min-h-screen" style={{ fontFamily: "'DM Sans', sans-serif" }}>
 
@@ -142,7 +155,9 @@ export default function AdminPanel() {
         <span className="text-sm font-medium tracking-widest uppercase text-gray-400" style={{ fontFamily: "'DM Mono', monospace" }}>
           Admin Dashboard
         </span>
-        <button className="text-xs border border-gray-300 px-4 py-2 hover:bg-gray-100 transition text-gray-600" style={{ fontFamily: "'DM Mono', monospace" }}>
+        <button className="text-xs border border-gray-300 px-4 py-2 hover:bg-gray-100 transition text-gray-600" style={{ fontFamily: "'DM Mono', monospace" }}
+          onClick={adminLogout}
+        >
           Logout
         </button>
       </nav>
@@ -171,7 +186,7 @@ export default function AdminPanel() {
         {/* Providers */}
         {activeTab === "providers" && (
           <div>
-            <p className="text-[1.5rem] text-gray-600 mb-3 uppercase tracking-widest" style={{ fontFamily: "'DM Mono', monospace" }}>Providers</p>
+            <p className="text-[1.5rem] text-gray-600 mb-1 uppercase tracking-widest" style={{ fontFamily: "'DM Mono', monospace" }}>Providers</p>
             <SearchInput search={search} setSearch={setSearch} func={getAllUsers} />
             <div className="bg-white border border-gray-200 rounded-sm overflow-hidden">
               <div className="flex flex-row gap-7 justify-end py-5 px-3">
@@ -234,7 +249,7 @@ export default function AdminPanel() {
         {/* Users */}
         {activeTab === "users" && (
           <div>
-            <p className="text-[1.5rem] text-gray-600 mb-6 uppercase tracking-widest" style={{ fontFamily: "'DM Mono', monospace" }}>Users</p>
+            <p className="text-[1.5rem] text-gray-600 mb-1 uppercase tracking-widest" style={{ fontFamily: "'DM Mono', monospace" }}>Users</p>
             <SearchInput search={search} setSearch={setSearch} func={getAllProviders} />
             <div className="bg-white border border-gray-200 rounded-sm overflow-hidden">
               <div className="flex flex-row gap-7 justify-end py-5 px-3">
@@ -275,7 +290,7 @@ export default function AdminPanel() {
         {/* Bookings */}
         {activeTab === "bookings" && (
           <div>
-            <p className="text-[1.5rem] text-gray-600 mb-6 uppercase tracking-widest" style={{ fontFamily: "'DM Mono', monospace" }}>Bookings</p>
+            <p className="text-[1.5rem] text-gray-600 mb-1 uppercase tracking-widest" style={{ fontFamily: "'DM Mono', monospace" }}>Bookings</p>
             <SearchInput search={search} setSearch={setSearch} func={getAllBookings} />
             <div className="bg-white border border-gray-200 rounded-sm overflow-hidden">
               <div className="flex flex-row gap-7 justify-end py-5 px-3">

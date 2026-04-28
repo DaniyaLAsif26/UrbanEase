@@ -35,7 +35,12 @@ export default function ProviderLoginForm({ isUser = false }) {
             const result = await res.json()
 
             if (result.success) {
-                navigate('/')
+                if (isUser) {
+                    window.location.href = '/profile/user'
+                }
+                else{
+                    window.location.href = '/profile/provider'
+                }
             } else {
                 setGlobalError(result.error || 'Invalid credentials. Please try again.')
             }

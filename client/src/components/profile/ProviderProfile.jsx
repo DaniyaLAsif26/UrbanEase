@@ -34,7 +34,7 @@ const serviceIcons = {
 
 export default function ProviderProfile() {
     const { providerData, clearProviderData, updateProviderData, fetchProviderData } = useUser()
-    const { isProviderLoggedIn, verifyProviderLogin, isProviderLoaded } = useLogin()
+    const { isProviderLoggedIn, verifyProviderLogin, isProviderLoaded , logoutProvider } = useLogin()
     const navigate = useNavigate()
 
     const [bookings, setBookings] = useState([])
@@ -104,13 +104,8 @@ export default function ProviderProfile() {
     }, [])
 
     const handleLogout = async () => {
-        await fetch(`${BackEndRoute}/api/logout/provider`, {
-            method: "POST",
-            credentials: "include",
-        })
-        clearProviderData()
-        verifyProviderLogin()
-        navigate("/")
+        await logoutProvider()
+        window.location.href = "/"
     }
 
     const handleEditSave = async () => {
