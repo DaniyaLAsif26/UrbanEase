@@ -8,6 +8,8 @@ import { areas } from '../../data/services.js'
 import { useLogin } from '../../context/LoginContext'
 import { useUser } from '../../context/UserContext'
 
+const BackEndRoute = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000"
+
 export default function UserSignUpForm() {
 
     const { verifyUserLogin } = useLogin()
@@ -32,7 +34,7 @@ export default function UserSignUpForm() {
         }
 
         try {
-            const res = await fetch('http://localhost:5000/api/signup/user', {
+            const res = await fetch(`${BackEndRoute}/api/signup/user`, {
                 method: 'POST',
                 credentials : "include",
                 headers: { 'Content-Type': 'application/json' },

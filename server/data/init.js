@@ -12,29 +12,32 @@ const connectDB = async () => {
     await mongoose.connect(MONGO_URL)
 }
 
-connectDB()
-    .then(async () => {
-        console.log("Connected To MongoDB")
-    })
-    .catch((err) => {
-        console.log(err)
-    })
-
 const initDB = async () => {
     try {
         if (!process.env.ADMIN_PASSWORD || !process.env.ADMIN_USERNAME) {
-            throw new Error("ADMIN_Name or ADMIN_Pass is missing in .env");
+            throw new Error("ADMIN_NAME or ADMIN_PASS is missing in .env");
         }
-        
-        const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD , 10)
-        await Admin.create ({
-            username : process.env.ADMIN_USERNAME,
-            password : hashedPassword
+
+        const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD, 10)
+        await Admin.create({
+            username: process.env.ADMIN_USERNAME,
+            password: hashedPassword
         })
-    }
-    catch (err) {
+
+        console.log("✅ Admin initialized successfully")
+    } catch (err) {
         console.error("❌ Error initializing data:", err);
     }
 }
 
-await initDB()
+connectDB()
+    .then(async () => {
+        console.log("Connected To MongoDB")
+        await initDB()
+    })
+    .catch((err) => {
+        console.error("❌ DB Connection Failed:", err)
+    })
+    .finally(() => {
+        mongoose.disconnect()
+    })

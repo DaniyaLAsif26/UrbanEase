@@ -22,6 +22,8 @@ const SERVICES = [
 import { useLogin } from '../../context/LoginContext'
 import { useUser } from '../../context/UserContext'
 
+const BackEndRoute = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000"
+
 export default function ProviderSignUpForm() {
 
     const { verifyProviderLogin } = useLogin()
@@ -109,13 +111,13 @@ export default function ProviderSignUpForm() {
         const { confirmPassword, selectedServices: _, ...cleanData } = data
 
         try {
-            const res = await fetch('http://localhost:5000/api/signup/provider', {
+            const res = await fetch(`${BackEndRoute}/api/signup/provider`, {
                 method: 'POST',
-                credentials : "include",
+                credentials: "include",
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ ...cleanData, services,languages })
+                body: JSON.stringify({ ...cleanData, services, languages })
             })
 
             const result = await res.json()

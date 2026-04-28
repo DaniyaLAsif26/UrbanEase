@@ -12,6 +12,8 @@ const TIME_SLOTS = [
 
 const STEPS = ["Details", "Schedule", "Confirm"];
 
+const BackEndRoute = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000"
+
 function StepDots({ current }) {
     return (
         <div style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center", marginBottom: 36 }}>
@@ -267,7 +269,7 @@ export default function LaundryIroning() {
             setSubmitting(true);
             setSubmitError(null);
 
-            const res = await fetch("http://localhost:5000/api/booking", {
+            const res = await fetch(`${BackEndRoute}/api/booking`, {
                 method: "POST",
                 credentials: 'include',
                 headers: { "Content-Type": "application/json" },

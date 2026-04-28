@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react"
 import { useParams, useSearchParams, useNavigate } from "react-router-dom"
 
+const BackEndRoute = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000"
+
 function memberSinceLabel(dateStr) {
     const d = new Date(dateStr)
     return d.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
@@ -66,7 +68,7 @@ export default function ServiceProviders() {
                     area: area
                 })
 
-                const data = await fetch(`http://localhost:5000/api/profile/all-providers?${params}`, {
+                const data = await fetch(`${BackEndRoute}/api/profile/all-providers?${params}`, {
                     method: "GET",
                     credentials: "include"
                 })
@@ -127,7 +129,7 @@ export default function ServiceProviders() {
         }
 
         try {
-            const res = await fetch(`http://localhost:5000/api/booking/${bookingId}/assign/providers`, {
+            const res = await fetch(`${BackEndRoute}/api/booking/${bookingId}/assign/providers`, {
                 method: 'PATCH',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },

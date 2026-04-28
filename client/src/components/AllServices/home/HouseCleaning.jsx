@@ -6,6 +6,8 @@ import { useLogin } from '../../../context/LoginContext'
 
 import { areas } from '../../../data/services.js'
 
+const BackEndRoute = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000"
+
 const TIME_SLOTS = [
     '07:00 AM', '08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
     '13:00 PM', '14:00 PM', '15:00 PM', '16:00 PM', '17:00 PM', '18:00 PM',
@@ -80,7 +82,7 @@ export default function HouseCleaning() {
         }
 
         try {
-            const res = await fetch('http://localhost:5000/api/booking', {
+            const res = await fetch(`${BackEndRoute}/api/booking`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
