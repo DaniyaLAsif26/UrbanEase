@@ -1,10 +1,13 @@
-import { set } from "mongoose"
 import { useState } from "react"
 import { useNavigate } from 'react-router-dom'
+
+import { useLogin } from "../../context/LoginContext"
 
 const BackEndRoute = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000"
 
 export default function AdminLoginForm() {
+
+    const { verifyAdminLogin } = useLogin()
 
     const navigate = useNavigate()
     const [name, setName] = useState('')
@@ -14,8 +17,6 @@ export default function AdminLoginForm() {
         e.preventDefault()
 
         try {
-
-
             const login = await fetch(`${BackEndRoute}/api/login/admin`, {
                 method: "POST",
                 credentials: "include",
@@ -26,6 +27,7 @@ export default function AdminLoginForm() {
             const res = await login.json()
 
             if (res.success) {
+                verifyAdminLogin()
                 navigate('/admin/panel')
             }
             else {

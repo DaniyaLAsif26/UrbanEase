@@ -64,10 +64,33 @@ export const LoginProvider = ({ children }) => {
             setIsProviderLoaded(true)
         }
     }
+    const verifyAdminLogin = async () => {
+        try {
+            const res = await fetch(`${BackEndRoute}/api/login/verify/admin`, {
+                method: "GET",
+                credentials: "include"
+            })
+
+            const data = await res.json()
+
+            if (data.success) {
+                setIsAdminLoggedIn(data.success)
+            }
+
+        }
+        catch (err) {
+            console.log(err)
+            setIsAdminLoggedIn(false)
+        }
+        finally {
+            setIsAdminLoaded(true)
+        }
+    }
 
     useEffect(() => {
         verifyUserLogin()
         verifyProviderLogin()
+        verifyAdminLogin()
     }, [])
 
     return (
@@ -80,6 +103,10 @@ export const LoginProvider = ({ children }) => {
                 isProviderLoaded,
                 isProviderLoggedIn,
                 verifyProviderLogin,
+
+                isAdminLoaded,
+                isAdminLoggedIn,
+                verifyAdminLogin
             }
         }
         >

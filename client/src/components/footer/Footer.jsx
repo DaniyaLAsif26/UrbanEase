@@ -41,15 +41,13 @@ const links = [
             {
                 name: "Become a Provider", link: ''
             },
-            {
-                name: "Admin", link: '/login/admin'
-            },
         ]
     },
 ]
 
 
 export default function Footer() {
+
     return (
         <div className="bg-white text-black grid grid-cols-[1.25fr_1fr_1fr] py-16 px-16 justify-items-center">
             <div className="px-7">
