@@ -18,7 +18,7 @@ import RequestsPage from "../pages/RequestsPage.jsx"
 import AdminLoginPage from "../pages/AdminLognPage.jsx"
 import AdminPanel from "../components/profile/AdminPanel.jsx"
 
-import AdminProvider from "../components/admin/AdminProvider.jsx"
+import AdminProviderPage from "../pages/AdminProviderPage.jsx"
 
 export default function AppRoutes() {
     return (
@@ -60,7 +60,7 @@ export default function AppRoutes() {
 
             <Route path="/admin/panel" element={<AdminPanel />} />
 
-            <Route path="/admin/provider/:id" element={<AdminProvider />} />
+            <Route path="/admin/provider/:id" element={<AdminProviderPage />} />
 
 
         </Routes>
