@@ -222,7 +222,7 @@ export default function AdminPanel() {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {filteredProviders?.map((i) =>
-                    <tr className="hover:bg-gray-50 transition">
+                    <tr className="hover:bg-gray-50 transition cursor-pointer" onClick={()=> navigate(`/admin/provider/${i._id}`)}>
                       <td className="px-6 py-4 text-gray-800">{i.name}</td>
                       <td className="px-6 py-4 text-gray-800 flex flex-col justify-center gap-3">
                         {i.services.map((c) =>

@@ -63,5 +63,48 @@ router.get('/all-bookings', async (req, res) => {
     }
 })
 
+router.get('/provider/:id', async (req, res) => {
+    const provider = await Provider.findById(req.params.id)
+
+    return res.status(200).json({
+        success: true,
+        provider
+    })
+})
+
+router.patch('/verify-provider/:id', async (req, res) => {
+
+    const { isApproved } = req.body
+
+    const provider = await Provider.findByIdAndUpdate(
+        req.params.id,
+        { isApproved },
+        { returnDocument: 'after' }
+    )
+
+    return res.status(200).json({
+        success: true,
+        provider
+    })
+})
+
+router.get('/provider/bookings/:id', async (req, res) => {
+    try {
+        const providerId = req.params.id
+
+        const bookings = await Booking.find({
+            providers: providerId,
+            status: { $in: ["accepted", "in_progress", "completed"] }
+        }).sort({ date: -1 })
+
+        return res.status(200).json({
+            success: true,
+            bookings
+        })
+    } catch (err) {
+        return res.status(500).json({ success: false, error: err.message })
+    }
+})
+
 
 export default router;
