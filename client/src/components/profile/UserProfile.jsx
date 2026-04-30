@@ -1,13 +1,18 @@
 // UserProfile
 
 import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { useUser } from "../../context/UserContext"
 import { useLogin } from "../../context/LoginContext"
 
 const BackEndRoute = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000"
 
-export default function UserProfile() {
+export default function UserProfile({ isUser = false }) {
+
+    const { id } = useParams()
+
+    const [adminUserData, setAdminUserData] = useState(null)
+
     const { userData, clearUserData, updateUserData } = useUser()
     const { isUserLoggedIn, isUserLoaded, verifyUserLogin, logoutUser } = useLogin()
     const navigate = useNavigate()
@@ -27,7 +32,7 @@ export default function UserProfile() {
         .slice(0, 2) || "U"
 
     useEffect(() => {
-        if (isUserLoaded) {
+        if (isUserLoaded && !isUser) {
             if (!isUserLoggedIn) {
                 navigate("/login/user")
             }
@@ -35,7 +40,7 @@ export default function UserProfile() {
     }, [isUserLoggedIn])
 
     useEffect(() => {
-        if (isUserLoaded) {
+        if (isUserLoaded && !isUser) {
             setEditForm({
                 name: userData.name || "",
                 phone: userData.phone || "",
@@ -50,25 +55,55 @@ export default function UserProfile() {
         }
     }, [userData])
 
-    useEffect(() => {
-        const fetchBookings = async () => {
-            try {
-                const res = await fetch(`${BackEndRoute}/api/booking/all/user`, {
-                    credentials: "include",
-                })
-                const data = await res.json()
-                if (data.success) {
-                    const raw = data.bookings.slice(0, 3)
-                    setBookings(Array.isArray(raw) ? raw : [])
-                }
-            } catch (err) {
-                console.log(err)
-            } finally {
-                setBookingsLoaded(true)
+    const getAdminUser = async () => {
+        if (!id) return
+        try {
+            const res = await fetch(`${BackEndRoute}/api/admin/user/${id}`, {
+                method: "GET",
+                credentials: "include"
+            })
+            const data = await res.json()
+            if (data.success) {
+                setAdminUserData(data.user)
             }
+        } catch (err) {
+            console.log(err)
         }
+    }
+
+    const fetchBookings = async () => {
+        const route = isAdmin
+            ? `${BackEndRoute}/api/admin/user/bookings/${id}`
+            : `${BackEndRoute}/api/booking/all/user`
+        try {
+            const res = await fetch(route, {
+                credentials: "include",
+            })
+            const data = await res.json()
+            if (data.success) {
+                const raw = data.bookings.slice(0, 3)
+                setBookings(Array.isArray(raw) ? raw : [])
+            }
+        } catch (err) {
+            console.log(err)
+        } finally {
+            setBookingsLoaded(true)
+        }
+    }
+
+    useEffect(() => {
         fetchBookings()
-    }, [])
+    }, [id, isUser])
+
+    useEffect(() => {
+        if (isUser) {
+            getAdminUser()
+        }
+    }, [id])
+
+    const displayData = isUser ? adminUserData : userData
+
+
 
     const handleLogout = async () => {
         await logoutUser()
@@ -522,11 +557,21 @@ export default function UserProfile() {
                 .pf-container > * {
                     animation: fadeIn 0.3s ease both;
                 }
+                    .pp-admin-badge {
+                    display: inline-flex; align-items: center; gap: 5px;
+                    font-size: 11px; font-weight: 500; background: #1a1a1a;
+                    color: #f0f0f0; padding: 4px 12px; border-radius: 20px;
+                    margin-bottom: 1rem;
+                }
             `}</style>
 
             <div className="pf-page">
                 <div className="pf-container">
-
+                    {isUser && (
+                        <div className="pp-admin-badge">
+                            🛡️ Admin View — User ID: {id}
+                        </div>
+                    )}
                     {/* Header */}
                     <div className="pf-header">
                         <div className="pf-header-left">
@@ -535,17 +580,24 @@ export default function UserProfile() {
                                 <div className="pf-avatar-dot" />
                             </div>
                             <div>
-                                <div className="pf-name">{userData?.name || "User"}</div>
+                                <div className="pf-name">{displayData?.name || "User"}</div>
                                 <div className="pf-meta">
-                                    <span>{userData?.email}</span>
-                                    {userData?.phone && <span>· {userData.phone}</span>}
+                                    <span>{displayData?.email}</span>
+                                    {displayData?.phone && <span>· {displayData.phone}</span>}
                                 </div>
                             </div>
                         </div>
                         <div className="pf-header-actions">
-                            <button className="btn btn-outline" onClick={() => setEditOpen(true)}>Edit profile</button>
-                            <button className="btn btn-purple" onClick={() => navigate("/services")}>Book service</button>
-                            <button className="btn btn-danger" onClick={handleLogout}>Log out</button>
+                            {!isUser
+                                ?
+                                <>
+                                    <button className="btn btn-outline" onClick={() => setEditOpen(true)}>Edit profile</button>
+                                    <button className="btn btn-purple" onClick={() => navigate("/services")}>Book service</button>
+                                    <button className="btn btn-danger" onClick={handleLogout}>Log out</button>
+                                </>
+                                :
+                                <button className="btn btn-outline" onClick={() => navigate(-1)}>← Back</button>
+                            }
                         </div>
                     </div>
 
@@ -554,20 +606,20 @@ export default function UserProfile() {
                     <div className="info-grid">
                         <div className="info-card">
                             <div className="info-card-label">Full name</div>
-                            <div className={`info-card-value ${!userData?.name ? "empty" : ""}`}>
-                                {userData?.name || "Not set"}
+                            <div className={`info-card-value ${!displayData?.name ? "empty" : ""}`}>
+                                {displayData?.name || "Not set"}
                             </div>
                         </div>
                         <div className="info-card">
                             <div className="info-card-label">Phone</div>
-                            <div className={`info-card-value ${!userData?.phone ? "empty" : ""}`}>
-                                {userData?.phone || "Not set"}
+                            <div className={`info-card-value ${!displayData?.phone ? "empty" : ""}`}>
+                                {displayData?.phone || "Not set"}
                             </div>
                         </div>
                         <div className="info-card">
                             <div className="info-card-label">Email</div>
-                            <div className={`info-card-value ${!userData?.email ? "empty" : ""}`}>
-                                {userData?.email || "Not set"}
+                            <div className={`info-card-value ${!displayData?.email ? "empty" : ""}`}>
+                                {displayData?.email || "Not set"}
                             </div>
                         </div>
                     </div>
@@ -581,17 +633,17 @@ export default function UserProfile() {
                         </div>
                         <div>
                             <div className="info-card-label" style={{ marginBottom: 4 }}>Saved address</div>
-                            {userData?.address ? (
+                            {displayData?.address ? (
                                 <>
                                     <div className="info-card-value" style={{ fontSize: 13, lineHeight: 1.5 }}>
-                                        {userData.address.area || "No area saved"}
+                                        {displayData.address.area || "No area saved"}
                                     </div>
                                     <div className="info-card-value" style={{ fontSize: 13, lineHeight: 1.5 }}>
-                                        {userData.address.street || "No street saved"}
+                                        {displayData.address.street || "No street saved"}
                                     </div>
-                                    {userData.address.landmark && (
+                                    {displayData.address.landmark && (
                                         <div className="info-card-value" style={{ fontSize: 13, lineHeight: 1.5, color: "#888" }}>
-                                            Near {userData.address.landmark}
+                                            Near {displayData.address.landmark}
                                         </div>
                                     )}
                                 </>

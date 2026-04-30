@@ -582,7 +582,6 @@ export default function ProviderProfile({ isAdmin = false }) {
             <div className="pp-page">
                 <div className="pp-container">
 
-                    {/* ── Admin banner ── */}
                     {isAdmin && (
                         <div className="pp-admin-badge">
                             🛡️ Admin View — Provider ID: {id}
@@ -781,9 +780,9 @@ export default function ProviderProfile({ isAdmin = false }) {
                         <>
                             <div className="bookings-header">
                                 <div className="sec-label" style={{ marginBottom: 0 }}>Recent bookings</div>
-                                {!isAdmin && (
-                                    <button className="view-all" onClick={() => navigate("/bookings/provider")}>View all →</button>
-                                )}
+
+                                <button className="view-all" onClick={() => navigate("/all-bookings/provider")}>View all →</button>
+
                             </div>
                             <div className="booking-list">
                                 {!bookingsLoaded ? (

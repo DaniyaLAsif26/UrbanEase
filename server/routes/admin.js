@@ -72,6 +72,15 @@ router.get('/provider/:id', async (req, res) => {
     })
 })
 
+router.get('/user/:id', async (req, res) => {
+    const user = await User.findById(req.params.id)
+
+    return res.status(200).json({
+        success: true,
+        user
+    })
+})
+
 router.patch('/verify-provider/:id', async (req, res) => {
 
     const { isApproved } = req.body
@@ -94,7 +103,25 @@ router.get('/provider/bookings/:id', async (req, res) => {
 
         const bookings = await Booking.find({
             providers: providerId,
-            status: { $in: ["accepted", "in_progress", "completed"] }
+            status: { $in: ['draft', 'pending', 'declined', 'accepted', 'in_progress', 'completed', 'cancelled'] }
+        }).sort({ date: -1 })
+
+        return res.status(200).json({
+            success: true,
+            bookings
+        })
+    } catch (err) {
+        return res.status(500).json({ success: false, error: err.message })
+    }
+})
+
+router.get('/user/bookings/:id', async (req, res) => {
+    try {
+        const userId = req.params.id
+
+        const bookings = await Booking.find({
+            userId: userId,
+            status: { $in: ['draft', 'pending', 'declined', 'accepted', 'in_progress', 'completed', 'cancelled'] }
         }).sort({ date: -1 })
 
         return res.status(200).json({

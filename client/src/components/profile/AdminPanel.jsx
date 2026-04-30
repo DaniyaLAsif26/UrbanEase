@@ -273,7 +273,9 @@ export default function AdminPanel() {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {filteredUsers.map((u) => (
-                    <tr key={u._id} className="hover:bg-gray-50 transition">
+                    <tr key={u._id} className="hover:bg-gray-50 transition"
+                    onClick={()=> navigate(`/admin/user/${u._id}`)}
+                    >
                       <td className="px-6 py-4 text-gray-800">{u.name}</td>
                       <td className="px-6 py-4 text-gray-500">{u.email}</td>
                       <td className="px-6 py-4 text-gray-500">{u.address?.area}</td>
