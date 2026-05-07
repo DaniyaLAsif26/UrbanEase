@@ -20,6 +20,7 @@ import AdminPanel from "../components/profile/AdminPanel.jsx"
 
 import AdminProviderPage from "../pages/AdminProviderPage.jsx"
 import AdminUserPage from "../pages/AdminUserPage.jsx"
+import AllProviderBookings from "../components/AllBookings/AllProviderBookings.jsx"
 
 export default function AppRoutes() {
     return (
@@ -54,7 +55,7 @@ export default function AppRoutes() {
             <Route path="/profile/user" element={<UserProfilePage />} />
 
             <Route path="/profile/provider" element={<ProviderProfilePage />} />
-            
+
             <Route path="/bookings/requests" element={<RequestsPage />} />
 
             <Route path="/login/admin" element={<AdminLoginPage />} />
@@ -63,6 +64,9 @@ export default function AppRoutes() {
 
             <Route path="/admin/provider/:id" element={<AdminProviderPage />} />
             <Route path="/admin/user/:id" element={<AdminUserPage />} />
+            <Route path="/all-bookings/provider/:id"
+                element={<AllProviderBookings isAdmin={true} />} />
+            <Route path="/all-bookings/provider" element={<AllProviderBookings />} />
 
 
         </Routes>

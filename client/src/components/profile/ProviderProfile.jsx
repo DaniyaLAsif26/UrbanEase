@@ -60,7 +60,6 @@ export default function ProviderProfile({ isAdmin = false }) {
     const [servicesSaving, setServicesSaving] = useState(false)
     const [servicesSaveError, setServicesSaveError] = useState("")
 
-    // ── Derived: pick the right data source based on mode ──
     const displayData = isAdmin ? adminProviderData : providerData
 
     const initials = displayData?.name
@@ -70,7 +69,6 @@ export default function ProviderProfile({ isAdmin = false }) {
         .toUpperCase()
         .slice(0, 2) || "P"
 
-    // ── Auth guard: redirect provider if not logged in ──
     useEffect(() => {
         if (isProviderLoaded && !isAdmin) {
             if (!isProviderLoggedIn) {
@@ -79,7 +77,6 @@ export default function ProviderProfile({ isAdmin = false }) {
         }
     }, [isProviderLoggedIn, isProviderLoaded])
 
-    // ── Populate edit form when providerData loads (non-admin only) ──
     useEffect(() => {
         if (!isAdmin && isProviderLoggedIn && providerData) {
             setEditForm({
@@ -781,7 +778,7 @@ export default function ProviderProfile({ isAdmin = false }) {
                             <div className="bookings-header">
                                 <div className="sec-label" style={{ marginBottom: 0 }}>Recent bookings</div>
 
-                                <button className="view-all" onClick={() => navigate("/all-bookings/provider")}>View all →</button>
+                                <button className="view-all" onClick={() => isAdmin ? navigate(`/all-bookings/provider/${id}`) : navigate("/all-bookings/provider")}>View all →</button>
 
                             </div>
                             <div className="booking-list">
@@ -790,7 +787,7 @@ export default function ProviderProfile({ isAdmin = false }) {
                                 ) : safeBookings.length === 0 ? (
                                     <div className="empty-state">No bookings yet.</div>
                                 ) : (
-                                    safeBookings.slice(0, 5).map((b, i) => {
+                                    safeBookings.slice(0, 3).map((b, i) => {
                                         const status = statusMeta[b.status] || statusMeta.pending
                                         const icon = serviceIcons[b.serviceType] || "🛠️"
                                         return (
